@@ -1,0 +1,8 @@
+{
+  "version": "1.6.3",
+  "releaseDate": "2026-05-07",
+  "changelog": "Description ASNR pour les lieux (retour Catherine)\n\n- Nouveau champ 'Description ASNR / Localisation détaillée' dans la modale Zone\n- Saisie type : Hall 1, bâtiment G, niveau 0\n- Affichage automatique dans la rubrique 'Par lieu' à côté du nom du bloc (badge bleu 📋)\n- Ce descriptif est celui transmis à l'ASNR pour l'enregistrement de l'établissement\n\nBonus\n- Affichage automatique des tags communs aux appareils d'un même lieu (badge gris 🏷)\n- Si tous les appareils d'un bloc ont le tag 'Hall1', il s'affiche au niveau du bloc",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.6.3.html",
+  "size": 1193700,
+  "minVersionRequired": "1.0.0"
+}
