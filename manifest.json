@@ -1,0 +1,8 @@
+{
+  "version": "1.5.0",
+  "releaseDate": "2026-05-07",
+  "changelog": "Notifications quotidiennes — fix mode local\n\n- Nouvelle modale visuelle 'Résumé du jour' qui s'affiche au démarrage si retards/imminents\n- Compteurs colorés (En retard / Imminents / Aujourd'hui) + liste des items prioritaires\n- Bouton 'Voir le tableau de bord' direct depuis la modale\n- Détection automatique du mode local (file://) — bascule transparente vers la modale\n- Bouton 'Tester maintenant' fonctionne désormais en mode local\n- Plus de message d'erreur 'Impossible d'envoyer la notification'\n- Bandeau explicatif dans Paramètres si mode local détecté",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.5.0.html",
+  "size": 1127800,
+  "minVersionRequired": "1.0.0"
+}
