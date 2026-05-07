@@ -1,0 +1,8 @@
+{
+  "version": "1.2.0",
+  "releaseDate": "2026-05-07",
+  "changelog": "Première version publiée avec système de mise à jour automatique\n\n- Centre de mises à jour intégré\n- Module Mes checklists personnelles avec 5 modèles\n- Suivi PDS/PDL doses patient\n- Modale détail appareil avec mini-calendrier\n- Boutons d'action sur la page Cohérence\n- Drag-drop fichiers sur cartes Kanban\n- Page Pièces jointes centralisées\n- Catégorie Radio bloc opératoire\n- Cases conformité rapides en tournée",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.2.0.html",
+  "size": 1101000,
+  "minVersionRequired": "1.0.0"
+}
