@@ -1,0 +1,8 @@
+{
+  "version": "1.6.0",
+  "releaseDate": "2026-05-07",
+  "changelog": "Nouveau module Dosimétrie opérationnelle\n\n📡 Onglet 'Dosimètres' (parc + cycles annuels)\n- Suivi de N dosimètres (DMC 3000, EPD-Mk2, Saphymo, etc.)\n- Historique complet des vérifications (retrait, vérif, constat, réception)\n- Statuts : Actif / Défectueux / Retiré\n- Filtres par service et par statut d'échéance\n- Import depuis Excel (paste) ou CSV\n- Calcul auto de la prochaine échéance (+1 an)\n\n👥 Onglet 'Attributions' (qui porte quoi)\n- Lien Personne ↔ Dosimètre\n- Dates début/fin (avec attributions en cours)\n- Autocomplete depuis le module Formations\n\n📊 Onglet 'Doses' (style DosiCare)\n- Saisie mensuelle des doses (mSv)\n- Catégorisation A / B / Non classé\n- Vérification automatique vs seuils Code travail R.4451\n- Vue matrice (personnes × mois) avec cumul annuel\n- Alertes colorées : 75% du seuil = orange, dépassement = rouge\n- Création automatique d'action dans Plan d'action si dépassement\n\nIntégrations\n- Échéances vérif dans agenda unifié\n- Export CSV global (dosimètres + attributions + doses)\n- Sauvegarde JSON inclut le nouveau module",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.6.0.html",
+  "size": 1190300,
+  "minVersionRequired": "1.0.0"
+}
