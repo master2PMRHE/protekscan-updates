@@ -1,8 +1,0 @@
-{
-  "version": "1.4.0",
-  "releaseDate": "2026-05-07",
-  "changelog": "Améliorations module Formations (retour Catherine GROSJEAN)\n\n- Nouveau champ 'Type de formation' :\n  - RP Travailleur classé\n  - Information RP Travailleur non classé\n  - RP Personnes susceptibles d'être exposées\n  - Formation PCR / CRP\n  - Formation PSRPM\n  - Formation Manipulateur radio\n  - Autre formation\n- Type de formation visible dans la liste (badge coloré)\n- Date de renouvellement OPTIONNELLE pour les info RP non classé\n- Date pickers natifs (au lieu de saisie manuelle JJ/MM/AAAA)\n- Aide contextuelle : durée de validité affichée selon type\n- Nouveaux rôles : Travailleur Classé / Travailleur Non Classé\n- Statut adapté : 'N/A' affiché si pas de date de renouvellement",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.4.0.html",
-  "size": 1119900,
-  "minVersionRequired": "1.0.0"
-}
