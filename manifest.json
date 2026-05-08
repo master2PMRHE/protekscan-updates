@@ -1,0 +1,8 @@
+{
+  "version": "1.7.0",
+  "releaseDate": "2026-05-07",
+  "changelog": "Workflow guidé Déclaration ESR\n\n🚨 Module Événement Significatif en Radioprotection\n- Bouton 'Déclarer une ESR' dans la page Incidents\n- Wizard en 6 étapes guidées :\n  1. Identification (date, heure, type d'activité, appareil, lieu)\n  2. Critères de déclaration (Guide ASN n°11)\n  3. Description détaillée (chronologie, circonstances, nb impactés)\n  4. Conséquences (réelles + potentielles + doses)\n  5. Causes & analyse (facteurs contributifs + mesures immédiates)\n  6. Plan d'action correctif + déclaration ASNR\n\n📋 17 critères ASN intégrés (Décision n° 2014-DC-0463)\n- Travailleurs : dépassement limites, exposition non contrôlée\n- Patients : erreurs, surdosages, réactions tissulaires\n- Équipement : défaillance sécurité, émission non contrôlée\n- Sources : perte, vol, découverte\n- Public/environnement : exposition, contamination\n\n📄 Génération automatique de PDF de déclaration\n- Format compatible téléservice ASNR\n- Reprend toutes les rubriques officielles\n- Anonymisation patient/travailleur respectée\n- Niveau de gravité calculé automatiquement\n- Délai réglementaire affiché",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.7.0.html",
+  "size": 1226300,
+  "minVersionRequired": "1.0.0"
+}
