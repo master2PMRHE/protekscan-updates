@@ -4651,6 +4651,8 @@ function getNavList(){
 }
 
 function renderNav(){
+  // v1.14.0 PartF : utilise la nav groupée si disponible
+  if(typeof renderNavGrouped === 'function'){ return renderNavGrouped(); }
   setTimeout(() => { try { translateDOM(); } catch(e){} }, 0);
   
   const nav = $('#sb-nav');
@@ -25973,34 +25975,7 @@ function _executeExport(id){
    Format supporté : CSV (UTF-8, séparateurs ; ou ,) - léger, sans dépendance
    ======================================================================== */
 
-function _parseCSV(text){
-  // Détection du séparateur
-  const firstLine = text.split('\n')[0];
-  const sep = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ';' : ',';
-  const rows = [];
-  const lines = text.replace(/\r/g, '').split('\n');
-  for(let line of lines){
-    if(!line.trim()) continue;
-    const cells = [];
-    let cur = '';
-    let inQ = false;
-    for(let i = 0; i < line.length; i++){
-      const c = line[i];
-      if(inQ){
-        if(c === '"' && line[i+1] === '"'){ cur += '"'; i++; }
-        else if(c === '"'){ inQ = false; }
-        else cur += c;
-      } else {
-        if(c === '"'){ inQ = true; }
-        else if(c === sep){ cells.push(cur); cur = ''; }
-        else cur += c;
-      }
-    }
-    cells.push(cur);
-    rows.push(cells);
-  }
-  return rows;
-}
+// _parseCSV : version dupliquée supprimée — utilise la fonction préexistante
 
 const IMPORT_MAPPINGS = {
   travailleurs: {
@@ -26300,383 +26275,138 @@ function _executeImport(typeId, mapping, userMapping, dataRows){
 
 /* ========== PROTEKSCAN v1.14.0 PART E START ========== */
 /* ========================================================================
-   PROTEKSCAN v1.14.0 — Partie E : Aide contextuelle + Recherche d'accueil
+   PROTEKSCAN v1.14.0 — Partie E : Recherche d'accueil + Enrichissement aide
+   Note : le système d'aide contextuel (_GUIDE_FR + openContextualHelp +
+   _injectHelpFloatingButton) existe déjà depuis avant. On ne fait
+   qu'ENRICHIR _GUIDE_FR avec les nouveaux modules v1.13/v1.14.
    ======================================================================== */
 
 /* ────────────────────────────────────────────────────────────────────────
-   1) HELP_CONTENT : guide pas-à-pas par module
+   1) ENRICHISSEMENT DU SYSTÈME D'AIDE EXISTANT
    ──────────────────────────────────────────────────────────────────────── */
 
-const HELP_CONTENT = {
-  _default: {
-    titre: "Aide ProtekScan",
-    intro: "Cliquez sur le ? en bas à droite à tout moment pour obtenir l'aide de la page actuelle. Sur l'accueil, tapez ce que vous cherchez dans la barre de recherche.",
-    etapes: [
-      { t:"Naviguer", b:"Le menu de gauche regroupe les modules par thématique (RH, technique, dosi, dossiers réglementaires)." },
-      { t:"Rechercher", b:"Sur l'accueil, la barre de recherche en haut comprend le langage naturel : 'ajouter travailleur', 'exporter siseri', 'imprimer bilan'..." },
-      { t:"Sauvegarder", b:"Faites un Backup JSON régulier depuis Paramètres > Personnalisation > Centre d'exports." },
-    ],
-    astuces: ["Mode sombre : Paramètres > Préférences", "Thèmes couleurs : Paramètres > Personnalisation"],
-  },
-  dashboard: {
-    titre: "Tableau de bord",
-    intro: "Vue d'ensemble de la conformité RP : alertes, contrôles, échéances, KPIs.",
-    etapes: [
-      { t:"Lire les KPIs", b:"Chiffres en haut : travailleurs exposés, contrôles conformes, formations à jour, aptitudes valides." },
-      { t:"Identifier les alertes critiques", b:"La tuile rouge liste les retards. Cliquer sur un élément ouvre la fiche concernée." },
-      { t:"Anticiper", b:"La tuile En Attente affiche les échéances 30/60/90 jours selon vos délais perso." },
-      { t:"Lancer une tournée", b:"Mode Tournée propose une checklist optimisée des contrôles du jour." },
-    ],
-    astuces: ["Filtres mémorisés", "Cliquer sur un appareil ouvre sa fiche complète"],
-  },
-  passation: {
-    titre: "Inventaire & Travailleurs",
-    intro: "Cœur du logiciel : appareils émetteurs, contrôles techniques, travailleurs exposés.",
-    etapes: [
-      { t:"Ajouter un appareil", b:"Bouton + Appareil. Catégorie, marque/modèle, n° série, localisation. Le n° série permet le suivi sur la durée." },
-      { t:"Programmer les contrôles", b:"Sur chaque appareil : Vi, VPi, CQE, CQI, EPI… Date d'échéance auto-calculée." },
-      { t:"Ajouter un travailleur", b:"+ Travailleur. Catégorie A/B obligatoire, métier SISERI, secteur. Quotité = % temps en zone." },
-      { t:"Ouvrir une fiche", b:"Cliquer sur un nom : formations, aptitudes, dosimétrie, PJ, étiquettes libres." },
-    ],
-    astuces: ["Cocher 'externe' pour les intervenants tiers", "Filtres en haut combinent métier + secteur + catégorie"],
-  },
-  controles: {
-    titre: "Registre des contrôles",
-    intro: "Vue chronologique de tous les contrôles techniques (effectués + à venir).",
-    etapes: [
-      { t:"Filtrer", b:"Par type (CQE/CQI/Vi/VPi/EPI), appareil, statut." },
-      { t:"Saisir un contrôle", b:"Date, prestataire, conformité, commentaire. Joindre le PV en PJ." },
-      { t:"Tournée optimisée", b:"Le mode Tournée séquence les contrôles du jour pour gagner du temps." },
-    ],
-    astuces: ["Une non-conformité crée une action dans Plan d'action", "L'OCR PV (β) lit les rapports scannés"],
-  },
-  formations: {
-    titre: "Formations & Habilitations",
-    intro: "Suivi RH des formations RP (R.4451-58 CT, recyclage 3 ans).",
-    etapes: [
-      { t:"Ajouter", b:"Travailleur, rôle (PCR/CRP/PSRPM/TRAV_CLASSE/MANIPRX...), date. Expiration calculée auto." },
-      { t:"Filtrer", b:"Par rôle, statut, travailleur. Filtres mémorisés." },
-      { t:"Anticiper", b:"Formations expirant <90j en orange. Délai modifiable par travailleur (alertes perso)." },
-    ],
-    astuces: ["Modèle 'Rappel échéance formation' dans Modèles courriers"],
-  },
-  visites_med: {
-    titre: "Aptitudes médicales",
-    intro: "Visites médicales d'aptitude (R.4451-82 CT, suivi individuel renforcé).",
-    etapes: [
-      { t:"Ajouter visite", b:"Travailleur, date, médecin, aptitude. Expiration : 1 an pour cat. A, 4 ans pour cat. B." },
-      { t:"Demande RDV", b:"Modèle 'Demande de visite médicale' dans Modèles courriers." },
-    ],
-    astuces: ["Une inaptitude bloque l'accès en zone (consigne automatique)"],
-  },
-  dosimetrie: {
-    titre: "Dosimétrie",
-    intro: "3 onglets : Passive (mensuel/trimestriel), Opérationnelle (DOI temps réel), Doses Patients.",
-    etapes: [
-      { t:"Passive", b:"Saisie LANDAUER/APVL/Dosilab par travailleur et période. Calcul Hp(10) cumulé annuel." },
-      { t:"Opérationnelle", b:"Lecture des DOI par jour/intervention. Comparaison aux limites." },
-      { t:"Doses Patients", b:"PDS (radio) ou PDL/CTDIvol (scanner). Comparer aux NRD (cf. Calculateurs)." },
-    ],
-    astuces: ["Dépassement = alerte + action auto", "SISERI = doses cumulées 12 mois glissants"],
-  },
-  incidents: {
-    titre: "Incidents & ESR",
-    intro: "Évènements significatifs RP (Décision ASNR n°2014-DC-0463 modifiée).",
-    etapes: [
-      { t:"Saisir", b:"Type, date, lieu, description, personnes, conséquences. Décision : déclaration ESR ou non." },
-      { t:"Niveau ESR", b:"Échelle INES adaptée (0-7). Niveau 1+ : déclaration ASNR sous 2 jours ouvrés." },
-      { t:"Plan d'action", b:"Action corrective créée auto. Bouclage obligatoire avant clôture." },
-      { t:"Déclarer", b:"Modèle 'Déclaration ESR ASNR' dans Modèles courriers." },
-    ],
-    astuces: ["Les ESR figurent dans le Bilan annuel"],
-  },
-  plans_action: {
-    titre: "Plan d'action",
-    intro: "Suivi unifié des actions correctives (auto-éval + contrôles + incidents).",
-    etapes: [
-      { t:"Filtrer", b:"Par statut, pilote, échéance, source." },
-      { t:"Cycle", b:"À faire → En cours → Fait → Clôturé. Justification écrite à la clôture." },
-      { t:"Visualiser", b:"Vue Kanban dans Centre actions / Pièces jointes." },
-    ],
-    astuces: ["Les actions auto-éval pointent vers le critère défaillant"],
-  },
-  bilan_annuel: {
-    titre: "Bilan annuel RP",
-    intro: "Bilan obligatoire (R.4451-122 CT) en PDF prêt à signer.",
-    etapes: [
-      { t:"Choisir l'année", b:"Sélecteur en haut. Par défaut : année écoulée." },
-      { t:"6 KPIs", b:"Travailleurs exposés, dose collective, dose moyenne, dépassements, formations, aptitudes." },
-      { t:"Top 5 expositions", b:"5 personnes les plus exposées (Hp(10) cumulé)." },
-      { t:"PDF", b:"Imprimer/PDF : 12 sections réglementaires. À signer directeur + PCR." },
-    ],
-    astuces: ["Doses passives + opérationnelles cumulées", "ESR de l'année listés auto"],
-  },
-  inspection: {
-    titre: "Inspection ASNR",
-    intro: "Checklist 38 points / 8 sections pour préparer une inspection.",
-    etapes: [
-      { t:"Statuts", b:"Cliquer pour cycler : OK / À VÉRIFIER / KO. Les ⚙️ sont calculés automatiquement." },
-      { t:"Notes", b:"Annoter chaque point pour préparer les justifications à l'inspecteur." },
-      { t:"Score", b:"% de conformité en haut. Vise > 90% avant l'inspection." },
-      { t:"PDF", b:"Dossier complet avec les 18 documents à présenter." },
-    ],
-    astuces: ["Les statuts manuels sont sauvegardés. Refaire avant chaque inspection"],
-  },
-  calculateurs: {
-    titre: "Calculateurs RP",
-    intro: "Blindage (HVL) + tables NRD officielles.",
-    etapes: [
-      { t:"Blindage", b:"kVp + dose initiale + dose cible + matériau (Pb/Béton/Acier). Donne épaisseur. Source : NCRP 147 / IAEA SR47." },
-      { t:"NRD", b:"Référentiel français Décision ASN 2019-DC-0667. Comparer aux pratiques radio adulte / scanner adulte / scanner pédiatrique." },
-    ],
-    astuces: ["Calcul simplifié : pour la conception d'un local, recourir à un calcul détaillé avec build-up factor (IRSN)"],
-  },
-  courriers: {
-    titre: "Modèles de courriers RP",
-    intro: "10 modèles prêts à compléter pour vos courriers réglementaires.",
-    etapes: [
-      { t:"Variables par défaut", b:"Pré-remplies depuis SISERI / Formations. Modifier en haut, sauvegardées et appliquées partout." },
-      { t:"Ouvrir", b:"Cliquer sur une carte. Gauche : variables. Droite : aperçu live." },
-      { t:"Personnaliser", b:"Remplir les champs spécifiques. L'aperçu se met à jour en temps réel." },
-      { t:"Exporter", b:"Copier (presse-papier) ou Imprimer/PDF (page A4)." },
-    ],
-    astuces: ["Désignation PCR/CRP, info travailleur classé, demande aptitude, ESR ASNR, accueil tiers, consigne zone, rappel formation, demande CQE, note zonage"],
-  },
-  imports: {
-    titre: "Importeur CSV",
-    intro: "Import en masse depuis CSV (UTF-8). Auto-détection des colonnes.",
-    etapes: [
-      { t:"Type", b:"Travailleurs, Appareils, Formations ou Aptitudes." },
-      { t:"Charger", b:"Glisser-déposer ou parcourir. Depuis Excel : Enregistrer-sous > CSV UTF-8 (virgules)." },
-      { t:"Mapping", b:"Auto-détecté. Vérifier et ajuster (ignorer colonnes inutiles)." },
-      { t:"Importer", b:"Aperçu 10 lignes puis bouton Importer." },
-    ],
-    astuces: ["Format : 1 ligne d'en-têtes + 1 ligne par enregistrement", "UTF-8 obligatoire pour les accents"],
-  },
-  parametres: {
-    titre: "Paramètres",
-    intro: "SISERI, sauvegardes, préférences, mises à jour.",
-    etapes: [
-      { t:"Personnalisation", b:"Thèmes, relancer guide Ma première PCR, Centre d'exports." },
-      { t:"Préférences", b:"Mode sombre, verrouillage, langue (FR/EN)." },
-      { t:"Notifications", b:"Rappels système quotidiens, heure configurable." },
-      { t:"Sauvegardes", b:"Backup JSON intégral + restauration. Au moins 1×/mois." },
-      { t:"Mises à jour", b:"Vérification GitHub, téléchargement+remplacement auto." },
-    ],
-    astuces: ["Thèmes = 7 palettes. Chacun a son ambiance (médicale, alerte, sombre, sépia, contraste a11y…)"],
-  },
-  veille: {
-    titre: "Veille réglementaire",
-    intro: "Bibliothèque RP : Code du travail, ASN/ASNR, ISO, IRSN.",
-    etapes: [
-      { t:"Recherche", b:"Filtrer par catégorie, date, mot-clé." },
-      { t:"Veille personnelle", b:"Ajouter vos références (notes internes, articles)." },
-    ],
-    astuces: ["MAJ de la base incluses dans les MAJ logicielles"],
-  },
-  autoeval: {
-    titre: "Auto-évaluation /100",
-    intro: "29 critères pondérés couvrant les obligations RP (R.4451 et arrêtés).",
-    etapes: [
-      { t:"Répondre", b:"Pour chaque critère : Conforme / Non conforme / N/A. Justification écrite recommandée." },
-      { t:"Score", b:"Sur 100. Décomposition par section." },
-      { t:"Plan d'action auto", b:"Chaque critère NC crée une action dans Plan d'action." },
-    ],
-    astuces: ["Refaire l'auto-éval tous les 6 mois"],
-  },
-  pedago: {
-    titre: "Espace pédagogique",
-    intro: "Module de formation interne. Diapos + quiz + démo.",
-    etapes: [
-      { t:"Personnaliser", b:"Texte des diapos, ajouter du contenu spécifique à votre établissement." },
-      { t:"Mode démo", b:"Présentation animée pour formation de groupe." },
-      { t:"Quiz", b:"Questions auto pour tester les acquis." },
-    ],
-    astuces: ["Backup pédago séparé pour préserver vos modifs lors des MAJ"],
-  },
-  themes: {
-    titre: "Thèmes couleurs",
-    intro: "7 palettes au choix. Sauvegarde locale + appliqué au démarrage.",
-    etapes: [
-      { t:"Choisir", b:"Cliquer sur une carte. Application immédiate." },
-      { t:"Réinitialiser", b:"Bouton en bas pour revenir au thème par défaut." },
-    ],
-    astuces: ["Sépia = lecture longue. Contraste élevé = a11y."],
-  },
-  physique_med: {
-    titre: "Physique médicale",
-    intro: "Suivi PSRPM/PORM, NRD, examens, doses patients.",
-    etapes: [
-      { t:"PSRPM", b:"Personne Spécialisée en RP des Patients. Suivi formation/contrats." },
-      { t:"NRD", b:"Comparaison des pratiques aux NRD (scanner, radio, mammo)." },
-    ],
-    astuces: ["Lien direct avec module Calculateurs RP > tables NRD"],
-  },
-};
-
-function openHelp(navId){
-  navId = navId || _detectCurrentNavId() || '_default';
-  const help = HELP_CONTENT[navId] || HELP_CONTENT._default;
-  const host = document.getElementById('modal-host') || (function(){
-    const m = document.createElement('div'); m.id = 'modal-host'; document.body.appendChild(m); return m;
-  })();
-  host.innerHTML = `
-    <div class="overlay">
-      <div class="modal" style="max-width:640px;width:95vw">
-        <div class="modal-head" style="background:linear-gradient(135deg,rgba(15,108,168,.08) 0%,var(--bg2) 70%);border-bottom:2px solid var(--ac)">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:24px">💡</span>
-            <div>
-              <div class="h2" style="color:var(--ac);margin:0">${help.titre}</div>
-              <div class="muted" style="font-size:11.5px;margin-top:2px">${help.intro}</div>
-            </div>
-          </div>
-          <button class="x" id="help-close" aria-label="Fermer">${typeof ICN !== 'undefined' && ICN.close ? ICN.close : '✕'}</button>
-        </div>
-        <div class="modal-body" style="max-height:65vh;overflow-y:auto">
-          ${help.etapes && help.etapes.length ? `
-            <div class="h3" style="margin-bottom:10px;font-size:12px;color:var(--ac);text-transform:uppercase;letter-spacing:.05em">📋 Étape par étape</div>
-            ${help.etapes.map((s, i) => `
-              <div style="display:flex;gap:10px;margin-bottom:10px;padding:10px;background:var(--bg2);border-radius:5px;border-left:3px solid var(--ac)">
-                <div style="background:var(--ac);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:12px">${i+1}</div>
-                <div style="flex:1;min-width:0">
-                  <div style="font-weight:600;font-size:13px;margin-bottom:3px">${s.t}</div>
-                  <div class="muted" style="font-size:12px;line-height:1.5">${s.b}</div>
-                </div>
-              </div>
-            `).join('')}
-          ` : ''}
-          ${help.astuces && help.astuces.length ? `
-            <div class="h3" style="margin-bottom:8px;margin-top:14px;font-size:12px;color:var(--wa);text-transform:uppercase;letter-spacing:.05em">💡 Astuces</div>
-            <ul style="font-size:12px;line-height:1.7;padding-left:20px;color:var(--tx2);margin:0">
-              ${help.astuces.map(a => `<li>${a}</li>`).join('')}
-            </ul>
-          ` : ''}
-        </div>
-        <div class="modal-foot">
-          <button class="btn" id="help-search-btn">🔍 Chercher autre chose</button>
-          <button class="btn primary" id="help-ok">${(typeof _L === 'function' ? _L("J'ai compris", "Got it") : "J'ai compris")}</button>
-        </div>
-      </div>
-    </div>
-  `;
-  document.getElementById('help-close').addEventListener('click', () => host.innerHTML = '');
-  document.getElementById('help-ok').addEventListener('click', () => host.innerHTML = '');
-  document.getElementById('help-search-btn').addEventListener('click', () => {
-    host.innerHTML = '';
-    if(typeof navigate === 'function') navigate('dashboard');
-    setTimeout(() => {
-      const inp = document.getElementById('home-search-input');
-      if(inp){ inp.focus(); inp.select(); }
-    }, 200);
-  });
-}
-
-function _detectCurrentNavId(){
-  // Try several strategies
-  if(typeof window._curNavId === 'string') return window._curNavId;
-  // Active nav item
-  const active = document.querySelector('.nav-list .active, .nav-item.active, [data-active="true"]');
-  if(active){
-    const id = active.dataset.nav || active.dataset.id || active.getAttribute('data-id');
-    if(id) return id;
-  }
-  return null;
-}
-
-// Patch navigate() to track current nav id
-(function _hookNavigate(){
-  if(typeof window === 'undefined') return;
-  const tryHook = () => {
-    if(typeof navigate === 'function' && !window._navHooked){
-      const orig = navigate;
-      window.navigate = function(id, ...args){
-        window._curNavId = id;
-        const r = orig.apply(this, [id, ...args]);
-        setTimeout(() => _onPageRendered(id), 60);
-        return r;
-      };
-      window._navHooked = true;
-    } else if(!window._navHooked){
-      setTimeout(tryHook, 200);
-    }
+(function _enrichGuideFR(){
+  if(typeof _GUIDE_FR === 'undefined') return;
+  const additions = {
+    bilan_annuel: {
+      titre: '📄 Bilan annuel RP',
+      description: 'Génère le bilan annuel obligatoire (Article R.4451-122 CT) en PDF prêt à signer.',
+      sections: [
+        { titre: 'Choisir l\'année', contenu: 'Le sélecteur en haut bascule entre les années. Par défaut : année écoulée.' },
+        { titre: '6 KPIs', contenu: 'Travailleurs exposés, dose collective, dose moyenne, dépassements, formations, aptitudes.' },
+        { titre: 'Top 5 expositions', contenu: '5 personnes les plus exposées sur l\'année (Hp(10) cumulé).' },
+        { titre: 'Générer le PDF', contenu: 'Bouton <b>Imprimer/PDF</b> : 12 sections réglementaires complètes. À signer par le directeur et la PCR.' },
+        { titre: 'Inclus auto', contenu: 'Doses passives + opérationnelles cumulées sur 12 mois. Les ESR de l\'année sont automatiquement listés.' },
+      ],
+    },
+    inspection: {
+      titre: '🔍 Préparation inspection ASNR',
+      description: 'Checklist 38 points en 8 sections pour préparer une inspection ASNR.',
+      sections: [
+        { titre: 'Statuts cycliques', contenu: 'Cliquez sur un point pour cycler entre <span style="color:var(--gn)">OK</span>, <span style="color:var(--am)">À VÉRIFIER</span>, <span style="color:var(--rd)">KO</span>. Les ⚙️ sont calculés automatiquement par ProtekScan.' },
+        { titre: 'Notes', contenu: 'Annotez chaque point pour préparer les justifications à présenter à l\'inspecteur.' },
+        { titre: 'Score global', contenu: 'Pourcentage de conformité affiché en haut. Vise > 90% avant l\'inspection.' },
+        { titre: 'PDF', contenu: 'Bouton Imprimer génère un dossier complet avec liste des 18 documents à présenter.' },
+      ],
+    },
+    calculateurs: {
+      titre: '🧮 Calculateurs RP',
+      description: 'Outils de calcul radioprotection : blindage et NRD.',
+      sections: [
+        { titre: 'Calculateur de blindage', contenu: 'Saisir kVp + dose initiale + dose cible + matériau (Pb/Béton/Acier). Donne épaisseur en mm/cm. Basé sur HVL (NCRP 147 / IAEA SR47).' },
+        { titre: 'Tables NRD', contenu: 'Référentiel français Décision ASN 2019-DC-0667. Comparez vos pratiques aux NRD radio adulte / scanner adulte / scanner pédiatrique.' },
+        { titre: 'Limite', contenu: '⚠️ Calcul simplifié à des fins d\'aide à la décision. Pour la conception d\'un local, recourir à un calcul détaillé avec build-up factor (NCRP 147 / IRSN).' },
+      ],
+    },
+    courriers: {
+      titre: '📜 Modèles de courriers RP',
+      description: '10 modèles prêts à compléter pour vos courriers réglementaires courants.',
+      sections: [
+        { titre: 'Variables par défaut', contenu: 'Pré-remplies depuis SISERI / Formations. Modifiez en haut, elles sont sauvegardées et appliquées à tous les courriers.' },
+        { titre: 'Ouvrir un modèle', contenu: 'Cliquez sur une carte. La gauche montre les variables, la droite l\'aperçu live.' },
+        { titre: 'Personnaliser', contenu: 'Remplissez les champs spécifiques. L\'aperçu se met à jour en temps réel.' },
+        { titre: 'Exporter', contenu: 'Bouton <b>Copier</b> (presse-papier) ou <b>Imprimer/PDF</b> (page imprimable A4).' },
+        { titre: 'Catégories disponibles', contenu: 'Désignations PCR/CRP, info travailleur classé, demande aptitude, ESR ASNR, accueil tiers, consigne zone, rappel formation, demande CQE, note zonage.' },
+      ],
+    },
+    imports: {
+      titre: '📥 Importeur CSV',
+      description: 'Import en masse depuis un fichier CSV (UTF-8). Auto-détection des colonnes.',
+      sections: [
+        { titre: 'Choisir le type', contenu: 'Travailleurs, Appareils, Formations ou Aptitudes.' },
+        { titre: 'Charger le CSV', contenu: 'Glisser-déposer ou cliquer pour parcourir. Depuis Excel : Enregistrer-sous > CSV UTF-8 (délimité virgules).' },
+        { titre: 'Vérifier le mapping', contenu: 'ProtekScan détecte automatiquement les colonnes. Vérifiez et ajustez si nécessaire (ignorer colonnes inutiles).' },
+        { titre: 'Importer', contenu: 'Aperçu des 10 premières lignes. Bouton <b>Importer</b> pour exécuter en masse.' },
+        { titre: 'Format attendu', contenu: '1 ligne d\'en-têtes + 1 ligne par enregistrement. Encodage UTF-8 obligatoire pour les accents.' },
+      ],
+    },
   };
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', tryHook);
-  } else {
-    tryHook();
+  Object.assign(_GUIDE_FR, additions);
+
+  // Same for English (basic)
+  if(typeof _GUIDE_EN !== 'undefined'){
+    Object.assign(_GUIDE_EN, {
+      bilan_annuel: { titre: '📄 Annual RP report', description: 'Generates the mandatory annual report (R.4451-122 FCT).', sections: additions.bilan_annuel.sections },
+      inspection: { titre: '🔍 ASNR inspection prep', description: '38-point checklist to prepare an ASNR inspection.', sections: additions.inspection.sections },
+      calculateurs: { titre: '🧮 RP calculators', description: 'Shielding + DRL.', sections: additions.calculateurs.sections },
+      courriers: { titre: '📜 Letter templates', description: '10 ready-to-fill RP letter templates.', sections: additions.courriers.sections },
+      imports: { titre: '📥 CSV importer', description: 'Bulk import from CSV (UTF-8). Auto column detection.', sections: additions.imports.sections },
+    });
   }
 })();
 
-function _onPageRendered(navId){
-  if(navId === 'dashboard'){
-    _injectHomeSearchBar();
-  }
-}
-
 /* ────────────────────────────────────────────────────────────────────────
-   2) SEARCH_INDEX : palette de commandes + recherche d'accueil
+   2) BARRE DE RECHERCHE D'ACCUEIL — vrai nouveauté
    ──────────────────────────────────────────────────────────────────────── */
 
 const SEARCH_INDEX = [
-  // Travailleurs
-  { lbl:"Ajouter un travailleur exposé", k:"ajouter creer nouveau travailleur salarie classe expose categorie", ic:"👤", run:() => navigate('passation') },
-  { lbl:"Voir la liste des travailleurs", k:"liste travailleurs personnel salaries voir", ic:"👥", run:() => navigate('passation') },
-  { lbl:"Modifier un travailleur (catégorie, secteur)", k:"modifier travailleur fiche editer changer categorie", ic:"✏️", run:() => navigate('passation') },
-  // Appareils
-  { lbl:"Ajouter un appareil", k:"ajouter appareil scanner radio cardio nouveau equipement materiel", ic:"🩻", run:() => navigate('passation') },
-  { lbl:"Voir l'inventaire des appareils", k:"inventaire appareils equipements liste voir", ic:"📦", run:() => navigate('passation') },
+  // Inventaire / Travailleurs
+  { lbl:"Ajouter un appareil", k:"ajouter appareil scanner radio cardio nouveau equipement materiel", ic:"🩻", run:() => navigate('inventaire') },
+  { lbl:"Voir l'inventaire", k:"inventaire appareils equipements liste voir parc", ic:"📦", run:() => navigate('inventaire') },
+  { lbl:"Ajouter un travailleur exposé", k:"ajouter travailleur salarie classe expose categorie nouveau", ic:"👤", run:() => navigate('inventaire') },
   // Contrôles
-  { lbl:"Voir les contrôles à faire", k:"controles a faire urgents retards retard echeances", ic:"⏰", run:() => navigate('controles') },
-  { lbl:"Saisir un contrôle (CQE/CQI/Vi/VPi)", k:"saisir controle cqe cqi verification vi vpi epi prestataire", ic:"✅", run:() => navigate('controles') },
-  { lbl:"Lancer une tournée", k:"tournee mode optimisee parcours sequence controle", ic:"🚶", run:() => { if(typeof startTourneeMode === 'function') startTourneeMode(); else navigate('controles'); } },
+  { lbl:"Voir les contrôles à programmer", k:"controles a faire urgents retards retard echeances planning", ic:"⏰", run:() => navigate('planning') },
+  { lbl:"Saisir un contrôle (CQE/CQI/Vi/VPi)", k:"saisir controle cqe cqi verification vi vpi epi prestataire", ic:"✅", run:() => navigate('planning') },
+  { lbl:"Calendrier des contrôles", k:"calendrier mois annee vue planning controles", ic:"📅", run:() => navigate('calendrier') },
+  { lbl:"Kanban des contrôles", k:"kanban tableau drag drop colonnes statuts", ic:"📋", run:() => navigate('kanban') },
   // Formations
   { lbl:"Ajouter une formation RP", k:"ajouter formation habilitation certificat recyclage pcr crp", ic:"🎓", run:() => navigate('formations') },
   { lbl:"Voir formations expirées / à renouveler", k:"formations expirees renouveler recyclage echeances", ic:"⚠️", run:() => navigate('formations') },
-  // Aptitudes
-  { lbl:"Ajouter une visite médicale d'aptitude", k:"ajouter visite medicale aptitude rdv medecin sante travail", ic:"🩺", run:() => navigate('visites_med') },
-  { lbl:"Demander un RDV au médecin du travail", k:"demande rdv medecin travail aptitude courrier", ic:"📋", run:() => navigate('courriers') },
   // Dosimétrie
-  { lbl:"Saisir des doses passives", k:"saisir doses dosimetrie passive landauer apvl dosilab mensuel trimestriel", ic:"🛡️", run:() => navigate('dosimetrie') },
-  { lbl:"Saisir doses opérationnelles", k:"saisir doses operationnelles doi temps reel intervention", ic:"🛡️", run:() => navigate('dosimetrie') },
-  { lbl:"Saisir une dose patient (PDS / PDL)", k:"dose patient pds pdl ctdi scanner radio", ic:"👨‍⚕️", run:() => navigate('dosimetrie') },
-  // Incidents
+  { lbl:"Saisir doses passives / opérationnelles", k:"saisir doses dosimetrie passive operationnelle landauer apvl dosilab mensuel", ic:"🛡️", run:() => navigate('dosimetrie') },
+  { lbl:"Saisir une dose patient (PDS / PDL)", k:"dose patient pds pdl ctdi scanner radio examen", ic:"👨‍⚕️", run:() => navigate('examens') },
+  // Zones / Physique med
+  { lbl:"Gérer les zones réglementées", k:"zones reglementees surveillance controlee jaune rouge orange vert", ic:"📍", run:() => navigate('zones') },
+  { lbl:"Physique médicale (PSRPM, NRD)", k:"physique medicale psrpm nrd patient", ic:"⚛️", run:() => navigate('physique_med') },
+  // Incidents / Cohérence
   { lbl:"Déclarer un incident / ESR", k:"declarer incident esr evenement significatif radioprotection asnr", ic:"⚠️", run:() => navigate('incidents') },
-  { lbl:"Voir le registre des incidents", k:"registre incidents liste voir historique", ic:"📋", run:() => navigate('incidents') },
-  // Plan d'action
-  { lbl:"Voir le plan d'action", k:"plan action correctif suivi pilote echeance kanban", ic:"📋", run:() => navigate('plans_action') },
+  { lbl:"Vérifier la cohérence des données", k:"coherence verifier alerte anomalie incoherence", ic:"🔎", run:() => navigate('coherence') },
   // Réglementaire
   { lbl:"Générer le bilan annuel RP (PDF)", k:"bilan annuel rp r4451 122 imprimer pdf rapport directeur", ic:"📄", run:() => navigate('bilan_annuel') },
   { lbl:"Préparer une inspection ASNR", k:"inspection asnr asn checklist preparation 38 points", ic:"🔍", run:() => navigate('inspection') },
-  { lbl:"Veille réglementaire", k:"veille reglementaire textes loi code travail asn iso", ic:"📚", run:() => navigate('veille') },
-  { lbl:"Auto-évaluation 29 critères", k:"auto evaluation 100 criteres conformite score", ic:"🎯", run:() => navigate('autoeval') },
-  // Calculateurs
+  { lbl:"Documents réglementaires", k:"documents pj pieces jointes attachments fichiers", ic:"📎", run:() => navigate('docs') },
+  // Outils
   { lbl:"Calculer un blindage (HVL Pb/Béton/Acier)", k:"calculer blindage hvl plomb beton acier protection", ic:"🛡️", run:() => navigate('calculateurs') },
   { lbl:"Consulter les NRD (radio/scanner/pédiatrique)", k:"nrd niveaux reference diagnostiques radio scanner pediatrique 2019 0667", ic:"📊", run:() => navigate('calculateurs') },
-  // Courriers
-  { lbl:"Modèle : Désignation PCR", k:"designation pcr personne competente lettre courrier modele", ic:"📜", run:() => navigate('courriers') },
-  { lbl:"Modèle : Information travailleur classé A/B", k:"information travailleur classe categorie a b notification courrier", ic:"📜", run:() => navigate('courriers') },
-  { lbl:"Modèle : Déclaration ESR à l'ASNR", k:"declaration esr asnr courrier modele evenement significatif", ic:"📜", run:() => navigate('courriers') },
-  { lbl:"Modèle : Demande de CQE", k:"demande cqe controle qualite externe prestataire courrier", ic:"📜", run:() => navigate('courriers') },
-  { lbl:"Modèle : Note de zonage", k:"note zonage zone reglementee classement justification courrier", ic:"📜", run:() => navigate('courriers') },
-  { lbl:"Tous les modèles de courriers", k:"modeles courriers lettres tous templates", ic:"✉️", run:() => navigate('courriers') },
-  // Exports
-  { lbl:"Exporter pour SISERI (IRSN)", k:"siseri irsn export csv envoyer dosimetrie", ic:"📡", run:() => { if(typeof exportSISERI === 'function') exportSISERI(); else openExportsModal(); } },
-  { lbl:"Centre d'exports (12 types)", k:"exports centre exporter csv pdf json backup", ic:"📤", run:() => openExportsModal() },
-  { lbl:"Sauvegarder mes données (Backup JSON)", k:"backup sauvegarde sauvegarder json export integral securite", ic:"💾", run:() => openExportsModal() },
-  // Imports
+  { lbl:"Modèles de courriers RP", k:"modeles courriers lettres tous templates designation pcr esr aptitude", ic:"✉️", run:() => navigate('courriers') },
   { lbl:"Importer depuis CSV (Excel)", k:"importer csv excel xlsx en masse bulk donnees", ic:"📥", run:() => navigate('imports') },
+  { lbl:"Convertisseur d'unités", k:"convertisseur unite gray sievert rad rem mgy msv", ic:"🔢", run:() => navigate('convertisseur') },
+  // Prestataires / Externes
+  { lbl:"Gérer les prestataires", k:"prestataires fournisseur externe contact entreprises", ic:"🤝", run:() => navigate('prestataires') },
+  // Exports
+  { lbl:"Exporter pour SISERI (IRSN)", k:"siseri irsn export csv envoyer dosimetrie", ic:"📡", run:() => { if(typeof exportSISERI === 'function') exportSISERI(); else if(typeof openExportsModal === 'function') openExportsModal(); } },
+  { lbl:"Centre d'exports (12 types)", k:"exports centre exporter csv pdf json backup tous", ic:"📤", run:() => { if(typeof openExportsModal === 'function') openExportsModal(); else navigate('parametres'); } },
+  { lbl:"Sauvegarder mes données (Backup JSON)", k:"backup sauvegarde sauvegarder json export integral securite", ic:"💾", run:() => { if(typeof openExportsModal === 'function') openExportsModal(); else navigate('parametres'); } },
   // Personnalisation
   { lbl:"Changer le thème de couleur", k:"theme couleur sombre clair sepia personnaliser apparence", ic:"🎨", run:() => navigate('themes') },
   { lbl:"Relancer le guide \"Ma première PCR\"", k:"onboarding guide tutoriel ma premiere pcr aide demarrage", ic:"🎓", run:() => { if(typeof startOnboarding === 'function') startOnboarding(true); } },
-  { lbl:"Configurer les alertes (formations, aptitudes)", k:"alertes notifications delais formations aptitudes dosimetrie configurer", ic:"⚠️", run:() => navigate('parametres') },
-  // Système
+  // Aide / Système
+  { lbl:"Tutoriel ProtekScan", k:"tutoriel guide aide comment utiliser apprendre", ic:"💡", run:() => navigate('tutoriel') },
+  { lbl:"Astuces", k:"astuces tips conseils bonnes pratiques", ic:"💡", run:() => navigate('astuces') },
+  { lbl:"Contacter le créateur (Yanis)", k:"contact yanis boukortt support email telephone bug", ic:"👤", run:() => navigate('createur') },
   { lbl:"Paramètres (SISERI, langue, sécurité)", k:"parametres reglages settings siseri langue pin securite", ic:"⚙️", run:() => navigate('parametres') },
-  { lbl:"Vérifier les mises à jour", k:"mise a jour update version verifier nouvelle", ic:"🔄", run:() => { if(typeof openUpdateCenter === 'function') openUpdateCenter(); else navigate('parametres'); } },
-  { lbl:"Aide / Tutoriel de cette page", k:"aide help tutoriel guide comment utiliser", ic:"💡", run:() => openHelp() },
 ];
 
-// Normalize text (lowercase + remove accents)
 function _normalize(s){
   return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -26693,27 +26423,22 @@ function _searchScore(query, item){
     if(kw.includes(tk)) score += 1;
     if(lbl.startsWith(tk)) score += 1;
   }
-  // Bonus if all tokens match somewhere
   const allMatch = tokens.every(tk => lbl.includes(tk) || kw.includes(tk));
   if(allMatch) score += 2;
   return score;
 }
 
 function _doSearch(query){
-  const scored = SEARCH_INDEX.map(item => ({ item, score: _searchScore(query, item) }))
+  return SEARCH_INDEX.map(item => ({ item, score: _searchScore(query, item) }))
     .filter(x => x.score > 0)
-    .sort((a, b) => b.score - a.score);
-  return scored.slice(0, 8).map(x => x.item);
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map(x => x.item);
 }
-
-/* ────────────────────────────────────────────────────────────────────────
-   3) BARRE DE RECHERCHE PERMANENTE SUR LE DASHBOARD
-   ──────────────────────────────────────────────────────────────────────── */
 
 function _injectHomeSearchBar(){
   const main = document.getElementById('main') || document.querySelector('main, .main, #app-main');
   if(!main) return;
-  // Avoid double insertion
   if(document.getElementById('home-search-wrap')) return;
 
   const bar = document.createElement('div');
@@ -26759,13 +26484,8 @@ function _injectHomeSearchBar(){
         </div>
       `).join('');
       results.querySelectorAll('.home-search-item').forEach(el => {
-        el.addEventListener('mouseenter', () => {
-          activeIdx = parseInt(el.dataset.idx);
-          highlightActive();
-        });
-        el.addEventListener('click', () => {
-          executeAt(parseInt(el.dataset.idx));
-        });
+        el.addEventListener('mouseenter', () => { activeIdx = parseInt(el.dataset.idx); highlightActive(); });
+        el.addEventListener('click', () => executeAt(parseInt(el.dataset.idx)));
       });
     }
     results.style.display = 'block';
@@ -26785,18 +26505,11 @@ function _injectHomeSearchBar(){
     try { item.run(); } catch(e){ console.error('[Search]', e); }
   };
 
-  // Hint suggestions on focus (empty)
   const showHint = () => {
+    const popular = [SEARCH_INDEX[0], SEARCH_INDEX[3], SEARCH_INDEX[15], SEARCH_INDEX[18], SEARCH_INDEX[21], SEARCH_INDEX[25]].filter(Boolean);
     results.innerHTML = `
       <div style="padding:8px 14px;font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;font-weight:600;background:var(--bg2)">Suggestions populaires</div>
-      ${[
-        SEARCH_INDEX[0],  // Ajouter travailleur
-        SEARCH_INDEX[3],  // Ajouter appareil
-        SEARCH_INDEX[18], // Bilan annuel
-        SEARCH_INDEX[22], // Calculer blindage
-        SEARCH_INDEX[30], // Tous les modèles courriers
-        SEARCH_INDEX[31], // Centre d'exports
-      ].filter(Boolean).map((it, i) => `
+      ${popular.map((it, i) => `
         <div class="home-search-item" data-idx="${i}" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--bd2);display:flex;align-items:center;gap:10px">
           <span style="font-size:18px;flex-shrink:0">${it.ic}</span>
           <span style="flex:1;font-size:13px;color:var(--tx)">${it.lbl}</span>
@@ -26804,7 +26517,7 @@ function _injectHomeSearchBar(){
         </div>
       `).join('')}
     `;
-    lastResults = [SEARCH_INDEX[0], SEARCH_INDEX[3], SEARCH_INDEX[18], SEARCH_INDEX[22], SEARCH_INDEX[30], SEARCH_INDEX[31]].filter(Boolean);
+    lastResults = popular;
     activeIdx = -1;
     results.querySelectorAll('.home-search-item').forEach(el => {
       el.addEventListener('mouseenter', () => { activeIdx = parseInt(el.dataset.idx); highlightActive(); });
@@ -26829,69 +26542,34 @@ function _injectHomeSearchBar(){
   inp.addEventListener('keydown', (e) => {
     if(e.key === 'ArrowDown'){ e.preventDefault(); if(activeIdx < lastResults.length - 1){ activeIdx++; highlightActive(); } }
     else if(e.key === 'ArrowUp'){ e.preventDefault(); if(activeIdx > 0){ activeIdx--; highlightActive(); } }
-    else if(e.key === 'Enter'){
-      e.preventDefault();
-      if(activeIdx >= 0) executeAt(activeIdx);
-      else if(lastResults.length === 1) executeAt(0);
-      else if(lastResults.length > 0) executeAt(0);
-    }
+    else if(e.key === 'Enter'){ e.preventDefault(); if(activeIdx >= 0) executeAt(activeIdx); else if(lastResults.length > 0) executeAt(0); }
     else if(e.key === 'Escape'){ inp.blur(); results.style.display = 'none'; }
   });
 }
 
-/* ────────────────────────────────────────────────────────────────────────
-   4) BOUTON ? FLOTTANT (toujours visible)
-   ──────────────────────────────────────────────────────────────────────── */
+// Hook: re-inject la barre quand on revient sur dashboard
+(function _hookDashboardSearchBar(){
+  if(typeof navigate !== 'function') return;
+  const _origNav = navigate;
+  if(window._navHookedForSearch) return;
+  window._navHookedForSearch = true;
+  window.navigate = function(view){
+    const r = _origNav.apply(this, arguments);
+    if(view === 'dashboard'){
+      setTimeout(() => _injectHomeSearchBar(), 80);
+    }
+    return r;
+  };
+})();
 
-function _injectHelpFloatingButton(){
-  if(document.getElementById('help-fab')) return;
-  const fab = document.createElement('button');
-  fab.id = 'help-fab';
-  fab.title = "Aide contextuelle (cette page)";
-  fab.setAttribute('aria-label', 'Ouvrir l\'aide');
-  fab.innerHTML = '?';
-  fab.style.cssText = `
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    background:var(--ac);
-    color:#fff;
-    border:none;
-    font-size:22px;
-    font-weight:700;
-    font-family:Georgia,serif;
-    cursor:pointer;
-    box-shadow:0 4px 14px rgba(15,108,168,.4);
-    z-index:9998;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:transform .15s, box-shadow .15s;
-  `;
-  fab.addEventListener('mouseenter', () => {
-    fab.style.transform = 'scale(1.08)';
-    fab.style.boxShadow = '0 6px 20px rgba(15,108,168,.55)';
-  });
-  fab.addEventListener('mouseleave', () => {
-    fab.style.transform = '';
-    fab.style.boxShadow = '0 4px 14px rgba(15,108,168,.4)';
-  });
-  fab.addEventListener('click', () => openHelp());
-  document.body.appendChild(fab);
-}
-
-// Auto-init
-(function _initHelpAndSearch(){
+// Auto-init au démarrage si dashboard est déjà rendu
+(function _initHomeSearch(){
   const init = () => {
-    _injectHelpFloatingButton();
-    // Try to inject home search bar if dashboard is already shown
     setTimeout(() => {
-      const navId = _detectCurrentNavId();
-      if(navId === 'dashboard' || !navId) _injectHomeSearchBar();
-    }, 500);
+      if(typeof currentView === 'undefined' || currentView === 'dashboard'){
+        _injectHomeSearchBar();
+      }
+    }, 800);
   };
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init);
@@ -26901,6 +26579,431 @@ function _injectHelpFloatingButton(){
 })();
 
 /* ========== PROTEKSCAN v1.14.0 PART E END ========== */
+
+
+/* ========== PROTEKSCAN v1.14.0 PART F START ========== */
+/* ========================================================================
+   PROTEKSCAN v1.14.0 — Partie F : Menu en catégories + Dashboard interactif
+   ======================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────────
+   1) NAVIGATION GROUPÉE EN CATÉGORIES COLLAPSIBLES
+   ──────────────────────────────────────────────────────────────────────── */
+
+const _NAV_GROUPS_KEY = 'protekscan_nav_groups_open';
+
+function _getOpenGroups(){
+  try { return JSON.parse(localStorage.getItem(_NAV_GROUPS_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+
+function _setOpenGroups(arr){
+  try { localStorage.setItem(_NAV_GROUPS_KEY, JSON.stringify(arr)); } catch(e){}
+}
+
+function _toggleGroup(groupId){
+  const open = _getOpenGroups();
+  const idx = open.indexOf(groupId);
+  if(idx >= 0) open.splice(idx, 1);
+  else open.push(groupId);
+  _setOpenGroups(open);
+}
+
+function _isGroupOpen(groupId){
+  return _getOpenGroups().includes(groupId);
+}
+
+function getNavGrouped(){
+  return [
+    { type:'item', id:'dashboard', lbl:_L('Tableau de bord','Dashboard'), ic:'dash' },
+
+    { type:'group', id:'g_inv', lbl:_L('🏥 Inventaire & Contrôles','🏥 Inventory & Controls'), items:[
+      { id:'inventaire', lbl:_L('Inventaire appareils','Devices'), ic:'inv' },
+      { id:'planning', lbl:_L('Planning contrôles','Controls planning'), ic:'plan' },
+      { id:'calendrier', lbl:_L('Calendrier','Calendar'), ic:'cal' },
+      { id:'kanban', lbl:_L('Kanban','Kanban'), ic:'tasks' },
+      { id:'coherence', lbl:_L('Cohérence','Coherence'), ic:'alert' },
+      { id:'prestataires', lbl:_L('Prestataires','Vendors'), ic:'user' },
+    ]},
+
+    { type:'group', id:'g_dosi', lbl:_L('🛡️ Dosimétrie & Patients','🛡️ Dosimetry & Patients'), items:[
+      { id:'dosimetrie', lbl:_L('Dosimétrie','Dosimetry'), ic:'shield' },
+      { id:'examens', lbl:_L('Examens mensuels','Monthly exams'), ic:'tasks' },
+      { id:'zones', lbl:_L('Zones réglementées','Zones'), ic:'pin' },
+      { id:'physique_med', lbl:_L('Physique médicale','Med Physics'), ic:'zap' },
+    ]},
+
+    { type:'group', id:'g_rh', lbl:_L('👥 RH & Formations','👥 HR & Training'), items:[
+      { id:'formations', lbl:_L('Formations / habilitations','Trainings'), ic:'user' },
+      { type:'action', id:'a_suivi_rh', lbl:_L('Suivi RH','HR Tracking'), ic:'user', action:'openSuiviRHModal' },
+      { type:'action', id:'a_plan_action', lbl:_L("Plan d'action","Action plan"), ic:'tasks', action:'openPlansActionModal' },
+    ]},
+
+    { type:'group', id:'g_evt', lbl:_L('⚠️ Évènements & Conformité','⚠️ Events & Compliance'), items:[
+      { id:'incidents', lbl:_L('Incidents / ESR','Incidents / ESR'), ic:'alert' },
+      { type:'action', id:'a_autoeval', lbl:_L('Auto-évaluation','Self-assessment'), ic:'tip', action:'openAutoEvalModal' },
+    ]},
+
+    { type:'group', id:'g_reg', lbl:_L('📋 Dossiers réglementaires','📋 Regulatory'), items:[
+      { id:'bilan_annuel', lbl:_L('Bilan annuel RP','Annual report'), ic:'tip' },
+      { id:'inspection', lbl:_L('Inspection ASNR','ASNR Inspection'), ic:'shield' },
+      { id:'docs', lbl:_L('Documents','Documents'), ic:'tip' },
+      { type:'action', id:'a_veille', lbl:_L('Veille réglementaire','Regulatory watch'), ic:'tip', action:'openVeilleModal' },
+      { type:'action', id:'a_carnet', lbl:_L('Carnet de bord PCR','PCR logbook'), ic:'tip', action:'openCarnetBordModal' },
+    ]},
+
+    { type:'group', id:'g_outils', lbl:_L('🛠️ Outils RP','🛠️ RP Tools'), items:[
+      { id:'calculateurs', lbl:_L('Calculateurs','Calculators'), ic:'zap' },
+      { id:'courriers', lbl:_L('Modèles courriers','Letter templates'), ic:'tip' },
+      { id:'imports', lbl:_L('Importeur CSV','CSV importer'), ic:'dl' },
+      { id:'convertisseur', lbl:_L("Convertisseur d'unités","Unit converter"), ic:'zap' },
+      { type:'action', id:'a_exports', lbl:_L("Centre d'exports","Exports center"), ic:'dl', action:'openExportsModal' },
+      { type:'action', id:'a_ocr', lbl:_L('OCR — Scanner PV','OCR — Scan report'), ic:'tip', action:'openOCRModal' },
+    ]},
+
+    { type:'group', id:'g_aide', lbl:_L('🎓 Formation & Aide','🎓 Training & Help'), items:[
+      { type:'action', id:'a_pedago', lbl:_L('Espace pédagogique','Learning space'), ic:'tuto', action:'openPedagoModal' },
+      { id:'tutoriel', lbl:_L('Tutoriel','Tutorial'), ic:'tuto' },
+      { id:'astuces', lbl:_L('Astuces','Tips'), ic:'tip' },
+      { id:'createur', lbl:_L('À propos / Créateur','About'), ic:'user' },
+    ]},
+
+    { type:'group', id:'g_autres', lbl:_L('📁 Autres','📁 Other'), items:[
+      { type:'action', id:'a_modeles_rap', lbl:_L('Modèles de rapports','Report templates'), ic:'tip', action:'openModelesRapportsModal' },
+      { type:'action', id:'a_duerp', lbl:_L('DUERP — Volet RP','DUERP — RP'), ic:'tip', action:'openDUERPModal' },
+      { type:'action', id:'a_checklists', lbl:_L('Mes checklists','Checklists'), ic:'tasks', action:'openChecklistsModal' },
+      { type:'action', id:'a_pj_central', lbl:_L('Pièces jointes (centrale)','Attachments'), ic:'tip', action:'openPJCentralModal' },
+      { type:'action', id:'a_pivot', lbl:_L('Export pivot JSON','JSON pivot export'), ic:'dl', action:'exportPivotJSON' },
+      { type:'action', id:'a_passation', lbl:_L('Mode Passation','Handover Mode'), ic:'tasks', action:'openPassationModal' },
+    ]},
+
+    { type:'item', id:'parametres', lbl:_L('Paramètres','Settings'), ic:'set' },
+  ];
+}
+
+// Find the group containing the active view
+function _findActiveGroup(viewId){
+  const groups = getNavGrouped();
+  for(const g of groups){
+    if(g.type === 'group' && g.items){
+      if(g.items.some(it => it.id === viewId)) return g.id;
+    }
+  }
+  return null;
+}
+
+// REPLACE the existing renderNav with a grouped version
+function renderNavGrouped(){
+  const nav = $('#sb-nav');
+  if(!nav) return;
+  setTimeout(() => { try { translateDOM(); } catch(e){} }, 0);
+  nav.innerHTML = '';
+  const stats = (typeof computeStats === 'function') ? computeStats() : {};
+
+  // Auto-open group containing currentView
+  const activeGroup = _findActiveGroup(currentView);
+  if(activeGroup && !_isGroupOpen(activeGroup)){
+    const o = _getOpenGroups();
+    o.push(activeGroup);
+    _setOpenGroups(o);
+  }
+
+  const list = getNavGrouped();
+  list.forEach(node => {
+    if(node.type === 'item'){
+      _appendNavItem(nav, node, stats, currentView);
+    } else if(node.type === 'group'){
+      const isOpen = _isGroupOpen(node.id);
+      const hasActive = node.items && node.items.some(it => it.id === currentView);
+      const badgeCount = _computeGroupBadge(node, stats);
+
+      const header = el(`<button class="nav-grp-head ${hasActive ? 'has-active' : ''} ${isOpen ? 'open' : ''}" data-grp="${node.id}" style="
+        width:100%;
+        background:transparent;
+        border:none;
+        padding:8px 12px;
+        margin-top:6px;
+        text-align:left;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font-size:11px;
+        font-weight:600;
+        color:${hasActive ? 'var(--ac)' : 'var(--tx2)'};
+        text-transform:uppercase;
+        letter-spacing:.04em;
+        border-radius:4px;
+        transition:background .15s;
+      ">
+        <span style="display:inline-block;transform:rotate(${isOpen ? '90' : '0'}deg);transition:transform .2s;font-size:9px;width:9px">▶</span>
+        <span style="flex:1">${node.lbl}</span>
+        ${badgeCount > 0 ? `<span class="nav-bdg" style="background:${badgeCount > 5 ? 'var(--rd)' : 'var(--am)'};color:#fff">${badgeCount}</span>` : ''}
+      </button>`);
+      header.addEventListener('mouseenter', () => header.style.background = 'var(--bg2)');
+      header.addEventListener('mouseleave', () => header.style.background = 'transparent');
+      header.addEventListener('click', () => {
+        _toggleGroup(node.id);
+        renderNavGrouped();
+      });
+      nav.appendChild(header);
+
+      if(isOpen && node.items){
+        const sub = el(`<div class="nav-grp-body" style="margin-bottom:4px"></div>`);
+        node.items.forEach(it => _appendNavItem(sub, it, stats, currentView, true));
+        nav.appendChild(sub);
+      }
+    }
+  });
+
+  // Storage info
+  const info = $('#sb-storage-info');
+  if(info && typeof appareils !== 'undefined' && typeof controles !== 'undefined'){
+    info.textContent = `${appareils.length} ${t('sidebar_appareils')} · ${controles.length} ${t('sidebar_controles')}`;
+  }
+}
+
+function _computeGroupBadge(group, stats){
+  // Count badges for items in the group
+  let total = 0;
+  if(!group.items) return 0;
+  for(const it of group.items){
+    if(it.id === 'planning' && stats.retard > 0) total += stats.retard;
+    if(it.id === 'inventaire' && stats.appareilsActifs && false) {} // not for inv badge
+  }
+  return total;
+}
+
+function _appendNavItem(parent, n, stats, curView, indented){
+  const isActive = n.id === curView;
+  let badge = '';
+  if(n.id === 'planning' && stats.retard > 0) badge = `<span class="nav-bdg">${stats.retard}</span>`;
+  if(n.id === 'inventaire' && stats.appareilsActifs) badge = `<span class="nav-bdg">${stats.appareilsActifs}</span>`;
+  if(n.id === 'dashboard' && stats.retard > 0) badge = `<span class="nav-bdg">${stats.retard}</span>`;
+
+  const itm = el(`<button class="nav-itm ${isActive ? 'active' : ''} ${n.id === 'dashboard' && stats.retard > 0 ? 'alert' : ''}"
+    data-view="${n.id}"
+    style="${indented ? 'padding-left:24px' : ''}">
+    <span class="nav-ic">${ICN[n.ic] || ''}</span>
+    <span>${n.lbl}</span>
+    ${badge}
+  </button>`);
+  itm.addEventListener('click', () => {
+    if(n.type === 'action' && typeof window[n.action] === 'function'){
+      try { window[n.action](); } catch(e){ console.error('[nav action]', e); }
+    } else {
+      navigate(n.id);
+    }
+  });
+  parent.appendChild(itm);
+}
+
+// Override renderNav to use the grouped version
+(function _hookRenderNav(){
+  if(typeof renderNav !== 'function') return;
+  if(window._renderNavOverridden) return;
+  window._renderNavOverridden = true;
+  window.renderNav = renderNavGrouped;
+})();
+
+/* ────────────────────────────────────────────────────────────────────────
+   2) DASHBOARD ACCORDION + ITEMS CLIQUABLES
+   ──────────────────────────────────────────────────────────────────────── */
+
+const _DASH_ACC_KEY = 'protekscan_dash_accordion';
+
+function _getDashAccState(){
+  try { return JSON.parse(localStorage.getItem(_DASH_ACC_KEY) || '{"alerts":true,"upcoming":true}'); }
+  catch(e){ return { alerts:true, upcoming:true }; }
+}
+
+function _setDashAccState(state){
+  try { localStorage.setItem(_DASH_ACC_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function _enhanceDashboardInteractivity(){
+  // Run after dashboard renders
+  const main = document.getElementById('main');
+  if(!main) return;
+
+  // 1) Find alert cards (h2 with "Alertes" or "alert-list" containers)
+  const alertCards = main.querySelectorAll('.card');
+  alertCards.forEach(card => {
+    const head = card.querySelector('.card-head');
+    if(!head) return;
+    const h2 = head.querySelector('.h2');
+    if(!h2) return;
+    // Ne traiter que les cards qui ont une alert-list (pour éviter chevron sur n'importe quelle card)
+    const alertList = card.querySelector('.alert-list');
+    if(!alertList) return;
+    const text = h2.textContent.toLowerCase();
+
+    let key = null;
+    if(text.includes('alerte') || text.includes('alert')) key = 'alerts';
+    else if(text.includes('prochain') || text.includes('upcoming') || text.includes('programmer') || text.includes('schedule')) key = 'upcoming';
+    if(!key) return;
+
+    // Skip if already enhanced
+    if(card.dataset.dashEnhanced) return;
+    card.dataset.dashEnhanced = '1';
+
+    const body = card.querySelector('.card-body');
+    if(!body) return;
+
+    const state = _getDashAccState();
+    const isOpen = state[key] !== false;
+
+    // Add chevron to header
+    const chevron = document.createElement('span');
+    chevron.className = 'dash-chevron';
+    chevron.style.cssText = `
+      margin-left:auto;display:inline-block;width:14px;height:14px;
+      transform:rotate(${isOpen ? '90' : '0'}deg);transition:transform .2s;
+      cursor:pointer;color:var(--tx2);font-size:13px;line-height:14px;
+      text-align:center;
+    `;
+    chevron.innerHTML = '▶';
+    head.style.cursor = 'pointer';
+    head.appendChild(chevron);
+
+    // Initial state
+    body.style.transition = 'max-height .25s ease';
+    body.style.overflow = 'hidden';
+    if(!isOpen){
+      body.style.maxHeight = '0';
+      body.style.padding = '0';
+    }
+
+    head.addEventListener('click', (e) => {
+      // Don't toggle if clicked on a button inside header
+      if(e.target.closest('button')) return;
+      const cur = _getDashAccState();
+      cur[key] = !cur[key];
+      _setDashAccState(cur);
+      const nowOpen = cur[key];
+      chevron.style.transform = `rotate(${nowOpen ? '90' : '0'}deg)`;
+      if(nowOpen){
+        body.style.maxHeight = body.scrollHeight + 'px';
+        body.style.padding = '';
+        setTimeout(() => { body.style.maxHeight = ''; }, 280);
+      } else {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        // Force reflow then collapse
+        void body.offsetHeight;
+        body.style.maxHeight = '0';
+        setTimeout(() => { body.style.padding = '0'; }, 0);
+      }
+    });
+
+    // 2) Make .alert items clickable
+    body.querySelectorAll('.alert').forEach((row, idx) => {
+      if(row.dataset.alertClickable) return;
+      row.dataset.alertClickable = '1';
+      row.style.cursor = 'pointer';
+      row.style.transition = 'background .15s';
+      row.addEventListener('mouseenter', () => row.style.background = 'var(--bg2)');
+      row.addEventListener('mouseleave', () => row.style.background = '');
+      row.addEventListener('click', () => {
+        // Find appareil name and date in the row to identify control
+        const titleEl = row.querySelector('.info .ti span');
+        const apName = titleEl ? titleEl.textContent.trim() : '';
+        const metaEl = row.querySelector('.info .meta');
+        const meta = metaEl ? metaEl.textContent : '';
+
+        // Set quick filter for planning view to find it
+        try {
+          if(typeof filters !== 'undefined' && filters.plan){
+            filters.plan._quick = key === 'alerts' ? 'retard' : 'aprog';
+            filters.plan._search = apName;
+          }
+        } catch(e){}
+        navigate('planning');
+      });
+    });
+  });
+}
+
+// Hook : enhance dashboard after each render
+(function _hookDashEnhance(){
+  if(window._dashEnhanceHooked) return;
+  window._dashEnhanceHooked = true;
+  if(typeof navigate === 'function'){
+    const _orig = navigate;
+    window.navigate = function(view){
+      const r = _orig.apply(this, arguments);
+      if(view === 'dashboard'){
+        setTimeout(_enhanceDashboardInteractivity, 100);
+      }
+      return r;
+    };
+  }
+  // Also at startup if dashboard is current view
+  setTimeout(() => {
+    if(typeof currentView === 'undefined' || currentView === 'dashboard'){
+      _enhanceDashboardInteractivity();
+    }
+  }, 1200);
+})();
+
+/* ────────────────────────────────────────────────────────────────────────
+   3) NETTOYAGE PARAMÈTRES — masquer les boutons migrés vers la nav
+   ──────────────────────────────────────────────────────────────────────── */
+
+(function _cleanupParametres(){
+  // Hide buttons that have been moved to nav, on each renderParametres call
+  const btnIdsToHide = [
+    'btn-carnet-bord', 'btn-modeles-rapports', 'btn-duerp', 'btn-export-pivot',
+    'btn-ocr', 'btn-passation', 'btn-pedago', 'btn-veille', 'btn-autoeval',
+    'btn-suivi-rh', 'btn-plan-action', 'btn-pj-central', 'btn-checklists',
+    'btn-siseri', 'btn-exports-center'
+  ];
+  const apply = () => {
+    if(!document.body || currentView !== 'parametres') return;
+    btnIdsToHide.forEach(id => {
+      const b = document.getElementById(id);
+      if(b) b.style.display = 'none';
+    });
+    // Add a notice if the buttons row becomes empty visually
+    const card = document.querySelector('.card-body');
+    // Add info banner
+    if(!document.getElementById('migrated-tools-info')){
+      const banner = document.createElement('div');
+      banner.id = 'migrated-tools-info';
+      banner.style.cssText = 'margin:6px 0 14px 0;padding:10px 12px;background:var(--bg2);border-left:3px solid var(--ac);border-radius:4px;font-size:11.5px;color:var(--tx2);line-height:1.5';
+      banner.innerHTML = '💡 ' + _L(
+        '<b>Les outils précédemment listés ici sont maintenant dans le menu de gauche</b>, regroupés en catégories : Outils RP, RH, Évènements, Aide, Autres.',
+        '<b>Tools previously listed here are now in the left menu</b>, grouped by category.'
+      );
+      // Insert before the first hidden button
+      for(const id of btnIdsToHide){
+        const b = document.getElementById(id);
+        if(b && b.parentElement){
+          b.parentElement.insertBefore(banner, b);
+          break;
+        }
+      }
+    }
+  };
+  if(typeof navigate === 'function'){
+    const _orig = window.navigate;
+    if(_orig && !window._paramsCleanupHooked){
+      window._paramsCleanupHooked = true;
+      window.navigate = function(view){
+        const r = _orig.apply(this, arguments);
+        if(view === 'parametres'){ setTimeout(apply, 50); }
+        return r;
+      };
+    }
+  }
+  setTimeout(apply, 1500);
+})();
+
+// Force un re-render de la nav au chargement pour que la version groupée s'applique
+setTimeout(() => {
+  try { if(typeof renderNavGrouped === 'function') renderNavGrouped(); } catch(e){}
+}, 1000);
+
+/* ========== PROTEKSCAN v1.14.0 PART F END ========== */
 
 /* ========== PROTEKSCAN v1.14.0 PATCH END ========== */
 
