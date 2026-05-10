@@ -755,7 +755,7 @@ body.dark .uuid-stamp{color:rgba(168,181,196,.35)}
       </svg>
     </div>
     <div class="sp-name" id="sp-name"></div>
-    <div class="sp-sub">CLINIQUE SAINT GEORGE · RADIOPROTECTION</div>
+    <div class="sp-sub" id="sp-sub">PROTEKSCAN · RADIOPROTECTION</div>
     <div class="sp-bar"><div class="sp-bar-fill"></div></div>
   </div>
   <div class="sp-version">VERSION <b class="app-version-full">1.0.0</b> · OFFLINE</div>
@@ -4033,7 +4033,18 @@ const STATUTS_LBL = new Proxy({}, {
   }
 });
 
-/* ═══════════════════ DONNÉES INITIALES ═══════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLAG DE DISTRIBUTION
+   ───────────────────────────────────────────────────────────────────────────
+   true  = données par défaut Saint Georges présentes au 1er lancement
+   false = version vierge (à utiliser pour distribuer à de nouveaux clients)
+   
+   ⚠️ Pour vendre une version à un nouveau client : passer SEED_DEFAULT_DATA à false,
+      rebuild, et envoyer le fichier .html résultant.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const SEED_DEFAULT_DATA = true;
+
+/* ═══════════════════ DONNÉES INITIALES SAINT GEORGES ═══════════════════ */
 const DEFAULT_APPAREILS = [
   { id:"a1", nom:"REVO EVO CT 1", categorie:"SCANNER", fabricant:"GEMS", modele:"REVOLUTION EVO CT", numSerie:"CBCGG1900088HM", numAppareil:"M2844555", annee:2019, lieu:"Scanner 1", numInstallation:"M060051", actif:true },
   { id:"a2", nom:"REVO EVO 2", categorie:"SCANNER", fabricant:"GEMS", modele:"REVOLUTION EVO", numSerie:"CBCGG1900032HM", numAppareil:"M2844558", annee:2019, lieu:"Scanner 2", numInstallation:"M060051", actif:true },
@@ -4458,22 +4469,26 @@ function checkScheduledNotif(){
 }
 
 async function loadState(){
+  // SEED_DEFAULT_DATA = true : injecte les données Saint Georges au 1er lancement
+  // SEED_DEFAULT_DATA = false : démarre vierge (mode distribution)
+  const _seedApps = (typeof SEED_DEFAULT_DATA !== 'undefined' && SEED_DEFAULT_DATA) ? DEFAULT_APPAREILS.slice() : [];
+  const _seedCtrls = (typeof SEED_DEFAULT_DATA !== 'undefined' && SEED_DEFAULT_DATA) ? DEFAULT_CONTROLES.slice() : [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw && _cryptoKey){
       const payload = JSON.parse(raw);
       const data = await decryptJSON(_cryptoKey, payload);
-      appareils = data.appareils || DEFAULT_APPAREILS.slice();
-      controles = data.controles || DEFAULT_CONTROLES.slice();
+      appareils = data.appareils || _seedApps;
+      controles = data.controles || _seedCtrls;
     } else {
-      appareils = DEFAULT_APPAREILS.slice();
-      controles = DEFAULT_CONTROLES.slice();
+      appareils = _seedApps;
+      controles = _seedCtrls;
       await saveState();
     }
   } catch(e) {
     console.warn('[ProtekScan] Impossible de charger les données chiffrées, réinitialisation.');
-    appareils = DEFAULT_APPAREILS.slice();
-    controles = DEFAULT_CONTROLES.slice();
+    appareils = _seedApps;
+    controles = _seedCtrls;
     await saveState();
   }
 }
@@ -27174,7 +27189,8 @@ setTimeout(() => {
     // 2) Dashboard accordion + clickable items (only when on dashboard)
     try {
       if(typeof currentView !== 'undefined' && currentView === 'dashboard'){
-        const collapseState = (function(){ try { return JSON.parse(localStorage.getItem('protekscan_dashboard_collapse') || '{}'); } catch(e){ return {}; } })();
+        // Nouveau format : stocke l'état OUVERT (true = ouvert, default = fermé)
+        const openState = (function(){ try { return JSON.parse(localStorage.getItem('protekscan_dashboard_open') || '{}'); } catch(e){ return {}; } })();
         const cards = document.querySelectorAll('#main .card');
         cards.forEach(card => {
           if(card.dataset.dashEnhanced === '1') return;
@@ -27201,20 +27217,22 @@ setTimeout(() => {
           chev.style.cssText = 'margin-left:8px;font-size:10px;color:var(--tx3);transition:transform .2s';
           head.appendChild(chev);
 
-          if(collapseState[key]){
+          // Par défaut FERMÉ. Ouvert seulement si openState[key] === true
+          const isOpen = openState[key] === true;
+          if(!isOpen){
             body.style.display = 'none';
             chev.style.transform = 'rotate(-90deg)';
           }
 
           head.addEventListener('click', (e) => {
             if(e.target.closest('button') && !e.target.classList.contains('dash-chev')) return;
-            const willCollapse = body.style.display !== 'none';
-            body.style.display = willCollapse ? 'none' : '';
-            chev.style.transform = willCollapse ? 'rotate(-90deg)' : '';
+            const willOpen = body.style.display === 'none';
+            body.style.display = willOpen ? '' : 'none';
+            chev.style.transform = willOpen ? '' : 'rotate(-90deg)';
             try {
-              const s = JSON.parse(localStorage.getItem('protekscan_dashboard_collapse') || '{}');
-              s[key] = willCollapse;
-              localStorage.setItem('protekscan_dashboard_collapse', JSON.stringify(s));
+              const s = JSON.parse(localStorage.getItem('protekscan_dashboard_open') || '{}');
+              s[key] = willOpen;
+              localStorage.setItem('protekscan_dashboard_open', JSON.stringify(s));
             } catch(e){}
           });
 
@@ -28408,6 +28426,402 @@ setInterval(_injectZoneEnrichedButtons, 1500);
 })();
 
 /* ========== PROTEKSCAN v1.14.1 PART K END ========== */
+
+/* ========== PROTEKSCAN v1.14.1 PART L START ========== */
+/* ========================================================================
+   PROTEKSCAN v1.14.1 — Partie L : Badges menu + Empty states + Backup rappel
+   ======================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────────
+   1) BADGES D'ALERTES SUR LES ITEMS DE NAV
+   ──────────────────────────────────────────────────────────────────────── */
+function _computeNavBadges(){
+  const badges = { planning: 0, formations: 0, incidents: 0, listing_trav: 0, prog_controles: 0, inventaire: 0, dosimetrie: 0, bilan_annuel: 0 };
+  
+  try {
+    let passation = {};
+    try { passation = JSON.parse(localStorage.getItem('protekscan_passation_data') || '{}'); } catch(e){}
+    const now = new Date();
+    
+    // Contrôles en retard (planning)
+    (passation.controles || []).forEach(c => {
+      if(c.fait || c.statut === 'fait' || c.statut === 'realise') return;
+      const due = c.dateDue || c.dateProchaine || c.datePrevue;
+      if(!due) return;
+      if(new Date(due) < now) badges.planning++;
+    });
+    
+    // Formations expirées
+    let habs = [];
+    try { habs = JSON.parse(localStorage.getItem('protekscan_habilitations') || '[]'); } catch(e){}
+    habs.forEach(h => {
+      if(!h.dateExp) return;
+      if(new Date(h.dateExp) < now){
+        badges.formations++;
+        badges.listing_trav++;
+      }
+    });
+    
+    // Incidents ESR non clôturés
+    let incs = [];
+    try { incs = JSON.parse(localStorage.getItem('protekscan_incidents') || '[]'); } catch(e){}
+    incs.forEach(i => {
+      if(i.esr && !i.cloture && !i.dateCloture) badges.incidents++;
+    });
+    
+    // Appareils sans contrôle initial enregistré (proxy : retard contrôles)
+    // Skip pour ne pas doubler avec planning
+    
+    // Programme contrôles : même compteur que planning
+    badges.prog_controles = badges.planning;
+    
+  } catch(e){ console.warn('[nav-badges]', e); }
+  
+  return badges;
+}
+
+function _injectNavBadges(){
+  try {
+    const badges = _computeNavBadges();
+    document.querySelectorAll('.nav-itm[data-view], .nav-item[data-view], a[data-view], button[data-view]').forEach(item => {
+      const viewId = item.dataset.view || item.getAttribute('data-view');
+      if(!viewId) return;
+      // Remove existing badge
+      const existing = item.querySelector('.nav-badge');
+      if(existing) existing.remove();
+      
+      const count = badges[viewId];
+      if(!count || count === 0) return;
+      
+      const badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.cssText = 'display:inline-block;margin-left:auto;background:var(--rd,#c0392b);color:#fff;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;line-height:14px;min-width:18px;text-align:center;flex-shrink:0';
+      item.appendChild(badge);
+    });
+    
+    // Aussi sur les en-têtes de groupes
+    document.querySelectorAll('.nav-grp-head[data-grp]').forEach(grpHead => {
+      const grpId = grpHead.dataset.grp;
+      if(!grpId) return;
+      const existing = grpHead.querySelector('.nav-grp-badge');
+      if(existing) existing.remove();
+      
+      // Sum badges of items in this group
+      const NAV_GROUPS_local = (typeof NAV_GROUPS !== 'undefined') ? NAV_GROUPS : [];
+      const grp = NAV_GROUPS_local.find(g => g.id === grpId);
+      if(!grp || !grp.items) return;
+      let total = 0;
+      grp.items.forEach(it => { total += badges[it.id] || 0; });
+      if(total === 0) return;
+      
+      const badge = document.createElement('span');
+      badge.className = 'nav-grp-badge';
+      badge.textContent = total > 99 ? '99+' : total;
+      badge.style.cssText = 'display:inline-block;margin-left:6px;background:var(--rd,#c0392b);color:#fff;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;line-height:14px;min-width:18px;text-align:center;flex-shrink:0';
+      grpHead.appendChild(badge);
+    });
+  } catch(e){ console.warn('[inject-nav-badges]', e); }
+}
+
+setInterval(_injectNavBadges, 2500);
+setTimeout(_injectNavBadges, 800);
+setTimeout(_injectNavBadges, 2000);
+
+/* ────────────────────────────────────────────────────────────────────────
+   2) EMPTY STATES INTELLIGENTS
+   Hook les nouvelles pages : si pas de données, afficher CTA
+   ──────────────────────────────────────────────────────────────────────── */
+(function _patchEmptyStates(){
+  // Wrapper renderListingTravailleurs
+  if(typeof renderListingTravailleurs === 'function' && !window._listingEmptyPatched){
+    const orig = renderListingTravailleurs;
+    window.renderListingTravailleurs = function(host){
+      let trav = [];
+      try { trav = (typeof _getTravailleursListing === 'function') ? _getTravailleursListing() : []; } catch(e){}
+      if(trav.length === 0){
+        host.innerHTML = '<div class="section-head"><div><div class="h1">📋 Listing des travailleurs exposés</div><div class="h1-sub">Vue Excel-like : formations, dosimétrie, classement, entrées/sorties</div></div></div>' +
+          '<div class="card" style="text-align:center;padding:48px 24px;margin-top:20px">' +
+            '<div style="font-size:60px;margin-bottom:16px;opacity:.5">📋</div>' +
+            '<div style="font-size:18px;font-weight:600;margin-bottom:8px">Aucun travailleur enregistré</div>' +
+            '<div class="muted" style="font-size:13px;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">Commencez par importer votre listing existant depuis Excel, ou ajoutez vos travailleurs un par un.</div>' +
+            '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+              '<button class="btn primary" id="empty-listing-import" style="padding:10px 18px;font-size:14px">📥 Importer depuis Excel/CSV</button>' +
+              '<button class="btn" id="empty-listing-new" style="padding:10px 18px;font-size:14px">+ Ajouter un travailleur</button>' +
+              '<button class="btn" id="empty-listing-guide" style="padding:10px 18px;font-size:14px;background:transparent">🎓 Voir le guide</button>' +
+            '</div>' +
+            '<div class="muted" style="font-size:11px;margin-top:20px;font-style:italic">Astuce : Si tu as un fichier Excel avec NOM/PRÉNOM/SERVICE/FONCTION, l\'import auto-détecte les colonnes.</div>' +
+          '</div>';
+        document.getElementById('empty-listing-import').onclick = () => { if(typeof navigate==='function') navigate('imports'); };
+        document.getElementById('empty-listing-new').onclick = () => { if(typeof _openListingTravEditor==='function') _openListingTravEditor(null); };
+        document.getElementById('empty-listing-guide').onclick = () => {
+          const btn = document.querySelector('#main .section-head .page-help-btn');
+          if(btn) btn.click();
+        };
+        return;
+      }
+      return orig.apply(this, arguments);
+    };
+    window._listingEmptyPatched = true;
+  }
+  
+  // Wrapper renderProgrammeControles
+  if(typeof renderProgrammeControles === 'function' && !window._progEmptyPatched){
+    const orig = renderProgrammeControles;
+    window.renderProgrammeControles = function(host){
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem('protekscan_passation_data') || '{}'); } catch(e){}
+      const appareils = (p.appareils || []).filter(a => a.actif !== false);
+      if(appareils.length === 0){
+        host.innerHTML = '<div class="section-head"><div><div class="h1">📊 Programme des contrôles</div><div class="h1-sub">Historique chronologique par appareil et type de contrôle</div></div></div>' +
+          '<div class="card" style="text-align:center;padding:48px 24px;margin-top:20px">' +
+            '<div style="font-size:60px;margin-bottom:16px;opacity:.5">📊</div>' +
+            '<div style="font-size:18px;font-weight:600;margin-bottom:8px">Aucun appareil enregistré</div>' +
+            '<div class="muted" style="font-size:13px;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">Pour voir le programme des contrôles, commence par ajouter tes appareils émetteurs (scanners, radio, salles interventionnelles) dans l\'inventaire.</div>' +
+            '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+              '<button class="btn primary" id="empty-prog-inv" style="padding:10px 18px;font-size:14px">📦 Aller à l\'inventaire</button>' +
+              '<button class="btn" id="empty-prog-import" style="padding:10px 18px;font-size:14px">📥 Importer depuis CSV</button>' +
+            '</div>' +
+          '</div>';
+        document.getElementById('empty-prog-inv').onclick = () => { if(typeof navigate==='function') navigate('inventaire'); };
+        document.getElementById('empty-prog-import').onclick = () => { if(typeof navigate==='function') navigate('imports'); };
+        return;
+      }
+      return orig.apply(this, arguments);
+    };
+    window._progEmptyPatched = true;
+  }
+  
+  // Retry hook quelques fois (les fonctions sont définies tard)
+  if(!window._listingEmptyPatched || !window._progEmptyPatched){
+    setTimeout(_patchEmptyStates, 500);
+  }
+})();
+
+/* ────────────────────────────────────────────────────────────────────────
+   3) BACKUP AUTO-RAPPEL : si pas d'export JSON depuis 7 jours
+   ──────────────────────────────────────────────────────────────────────── */
+
+// Hook le bouton btn-json-export pour stocker la date du dernier backup
+(function _hookBackupTracking(){
+  const tryHook = () => {
+    const btn = document.getElementById('btn-json-export');
+    if(!btn || btn._backupTracked) {
+      setTimeout(tryHook, 1000);
+      return;
+    }
+    btn._backupTracked = true;
+    btn.addEventListener('click', () => {
+      try { localStorage.setItem('protekscan_last_backup', Date.now().toString()); } catch(e){}
+    });
+    setTimeout(tryHook, 5000); // re-hook si page re-rendue
+  };
+  setTimeout(tryHook, 1500);
+})();
+
+// Au démarrage : si pas de backup récent, propose
+(function _checkBackupReminder(){
+  setTimeout(() => {
+    try {
+      const lastBackup = localStorage.getItem('protekscan_last_backup');
+      
+      // Premier lancement : pas de rappel mais set baseline
+      if(!lastBackup){
+        // Vérifier qu'il y a des données à sauvegarder
+        const p = localStorage.getItem('protekscan_passation_data');
+        if(!p || p === '{}') return;
+        try {
+          const data = JSON.parse(p);
+          const totalItems = (data.travailleurs || []).length + (data.appareils || []).length + (data.controles || []).length;
+          if(totalItems < 5) return; // Pas assez de données pour rappel
+        } catch(e){ return; }
+        // Données présentes mais jamais sauvé : marquer maintenant pour ne pas spam
+        localStorage.setItem('protekscan_last_backup', Date.now().toString());
+        return;
+      }
+      
+      const daysSince = Math.floor((Date.now() - parseInt(lastBackup)) / 86400000);
+      if(daysSince < 7) return;
+      
+      // Vérifier qu'on n'a pas déjà rappelé aujourd'hui
+      const lastReminder = localStorage.getItem('protekscan_backup_reminder_shown');
+      if(lastReminder){
+        const hoursSinceReminder = (Date.now() - parseInt(lastReminder)) / 3600000;
+        if(hoursSinceReminder < 24) return;
+      }
+      localStorage.setItem('protekscan_backup_reminder_shown', Date.now().toString());
+      
+      // Afficher la bannière non-intrusive
+      const banner = document.createElement('div');
+      banner.id = 'backup-reminder-banner';
+      banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--bg,#fff);color:var(--tx,#222);border:1px solid var(--am,#d68910);border-left:4px solid var(--am,#d68910);border-radius:8px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.15);max-width:340px;z-index:99998;font-size:13px;animation:slideUp .3s ease-out';
+      banner.innerHTML = 
+        '<div style="display:flex;align-items:start;gap:10px">' +
+          '<div style="font-size:20px;flex-shrink:0">💾</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:600;margin-bottom:4px">Backup recommandé</div>' +
+            '<div class="muted" style="font-size:11.5px;margin-bottom:10px;line-height:1.4">Ton dernier export JSON date d\'il y a <b>' + daysSince + ' jours</b>. Un backup régulier protège tes données.</div>' +
+            '<div style="display:flex;gap:6px">' +
+              '<button id="bru-now" class="btn primary" style="padding:5px 11px;font-size:11.5px;font-weight:600">💾 Backup maintenant</button>' +
+              '<button id="bru-later" class="btn" style="padding:5px 11px;font-size:11.5px;background:transparent">Plus tard</button>' +
+            '</div>' +
+          '</div>' +
+          '<button id="bru-close" style="background:none;border:none;color:var(--tx3,#888);font-size:16px;cursor:pointer;padding:0;line-height:1">×</button>' +
+        '</div>';
+      document.body.appendChild(banner);
+      
+      const close = () => { banner.remove(); };
+      banner.querySelector('#bru-close').onclick = close;
+      banner.querySelector('#bru-later').onclick = close;
+      banner.querySelector('#bru-now').onclick = () => {
+        close();
+        if(typeof exportJSON === 'function'){
+          exportJSON();
+          localStorage.setItem('protekscan_last_backup', Date.now().toString());
+        } else {
+          // Navigate to settings
+          if(typeof navigate === 'function') navigate('parametres');
+        }
+      };
+      
+      // Auto-dismiss after 20s
+      setTimeout(() => { try { banner.remove(); } catch(e){} }, 20000);
+    } catch(e){ console.warn('[backup-reminder]', e); }
+  }, 5000); // 5s après le chargement (laisse le temps au reste de se charger)
+})();
+
+/* ========== PROTEKSCAN v1.14.1 PART L END ========== */
+
+/* ========== PROTEKSCAN v1.14.1 PART M START ========== */
+/* ========================================================================
+   PROTEKSCAN v1.14.1 — Partie M : Splash dynamique + Mode distribution
+   ======================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────────
+   SPLASH DYNAMIQUE : lit le nom de l'établissement depuis SISERI
+   ──────────────────────────────────────────────────────────────────────── */
+(function _patchSplashDynamic(){
+  const apply = () => {
+    const spSub = document.getElementById('sp-sub');
+    if(!spSub) return;
+    let etabName = '';
+    try {
+      const siseri = JSON.parse(localStorage.getItem('protekscan_siseri') || '{}');
+      etabName = siseri.nomEtablissement || siseri.etablissement || '';
+    } catch(e){}
+    
+    const isAdmin = spSub.textContent.includes('ADMINISTRATEUR');
+    const suffix = isAdmin ? 'MODE ADMINISTRATEUR' : 'RADIOPROTECTION';
+    
+    if(etabName){
+      spSub.textContent = etabName + ' · ' + suffix;
+    } else {
+      spSub.textContent = 'PROTEKSCAN · ' + suffix;
+    }
+  };
+  
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
+  setTimeout(apply, 100);
+  setTimeout(apply, 500);
+})();
+
+/* ────────────────────────────────────────────────────────────────────────
+   BOUTON "PRÉPARER DISTRIBUTION" dans Paramètres
+   Nettoie complètement le localStorage pour préparer une copie vierge
+   ──────────────────────────────────────────────────────────────────────── */
+(function _addDistributionButton(){
+  const tryInject = () => {
+    if(typeof currentView === 'undefined' || currentView !== 'parametres') return;
+    if(document.getElementById('btn-distribution-mode')) return;
+    
+    // Find purge button to put ours just before
+    const purgeBtn = document.getElementById('btn-purge');
+    if(!purgeBtn) return;
+    
+    const btn = document.createElement('button');
+    btn.id = 'btn-distribution-mode';
+    btn.className = 'btn';
+    btn.innerHTML = '📦 Préparer distribution (vider toutes les données)';
+    btn.style.cssText = 'background:#0891b2;color:#fff;border-color:#0891b2;margin-bottom:8px;display:block;width:100%';
+    btn.onclick = () => {
+      const confirmStep1 = confirm(
+        '⚠️ MODE DISTRIBUTION ⚠️\n\n' +
+        'Cette action va EFFACER TOUTES TES DONNÉES (travailleurs, appareils, contrôles, formations…) ' +
+        'pour préparer une copie propre à distribuer.\n\n' +
+        'Le fichier HTML lui-même ne contient AUCUNE donnée : tes données sont uniquement dans le localStorage ' +
+        'de ton navigateur. Quand tu envoies le fichier à un client, il reçoit déjà une copie vierge.\n\n' +
+        'Tu veux quand même nettoyer ton localStorage maintenant ? (utile si tu testes l\'expérience d\'un nouveau client)'
+      );
+      if(!confirmStep1) return;
+      
+      const confirmStep2 = prompt(
+        'Pour confirmer, tape exactement : EFFACER\n\n' +
+        '(toutes tes données vont disparaître de CE navigateur)'
+      );
+      if(confirmStep2 !== 'EFFACER'){
+        alert('Annulé. Aucune donnée effacée.');
+        return;
+      }
+      
+      // Backup last
+      try {
+        if(typeof exportJSON === 'function'){
+          if(confirm('Veux-tu d\'abord faire un backup JSON avant d\'effacer ? (recommandé)')){
+            exportJSON();
+          }
+        }
+      } catch(e){}
+      
+      // Wipe all ProtekScan localStorage keys
+      const keysToWipe = [];
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && (k.startsWith('protekscan_') || k.startsWith('ps_'))) keysToWipe.push(k);
+      }
+      keysToWipe.forEach(k => localStorage.removeItem(k));
+      
+      alert('✓ ' + keysToWipe.length + ' clés effacées.\n\nLa page va recharger pour démarrer comme un nouveau client.');
+      setTimeout(() => location.reload(), 800);
+    };
+    
+    purgeBtn.parentNode.insertBefore(btn, purgeBtn);
+  };
+  
+  setInterval(tryInject, 1500);
+})();
+
+/* ────────────────────────────────────────────────────────────────────────
+   INFO BOX dans Paramètres sur le fonctionnement du stockage
+   ──────────────────────────────────────────────────────────────────────── */
+(function _addStorageInfoBox(){
+  const tryInject = () => {
+    if(typeof currentView === 'undefined' || currentView !== 'parametres') return;
+    if(document.getElementById('storage-info-box')) return;
+    
+    const btn = document.getElementById('btn-distribution-mode');
+    if(!btn) return;
+    
+    const box = document.createElement('div');
+    box.id = 'storage-info-box';
+    box.style.cssText = 'background:rgba(8,145,178,.08);border-left:3px solid #0891b2;padding:10px 14px;border-radius:4px;margin-bottom:10px;font-size:11.5px;line-height:1.5';
+    box.innerHTML = 
+      '<div style="font-weight:600;color:#0891b2;margin-bottom:4px">ℹ️ Comment ProtekScan stocke les données</div>' +
+      '<div class="muted" style="font-size:11px">Toutes tes données (travailleurs, appareils, contrôles…) sont stockées dans le <b>localStorage de ton navigateur</b>, pas dans le fichier HTML. ' +
+      'Quand tu distribues le fichier .html à un client, celui-ci reçoit toujours une <b>copie vierge</b> sur son propre navigateur. ' +
+      'Le bouton "Préparer distribution" ci-dessous sert uniquement à effacer TES données locales si tu veux tester l\'expérience d\'un nouveau client sur TA machine.</div>';
+    btn.parentNode.insertBefore(box, btn);
+  };
+  
+  setInterval(tryInject, 1500);
+})();
+
+/* ========== PROTEKSCAN v1.14.1 PART M END ========== */
+
+
 
 
 /* ========== PROTEKSCAN v1.14.0 PART I-bis (pages restantes) ========== */
