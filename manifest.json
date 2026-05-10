@@ -1,20 +1,13 @@
 {
-  "version": "1.14.3",
+  "version": "1.16.1",
   "releaseDate": "2026-05-10",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.14.3.html",
-  "size": 1677508,
-  "sha256": "b2976eb84aab006b9a2c24c1ffccea0f1dc70d62b35c60f3fb164e38feacc87c",
-  "minVersion": "1.0.0",
-  "mandatory": true,
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.16.1.html",
+  "size": 1729786,
+  "sha256": "7ac03460e75ad7ceba187fb6e2a0027b16eef149c84d18a57aad65caada3debb",
+  "minVersion": "1.14.0",
+  "mandatory": false,
   "changelog": [
-    "🔒 SÉCURITÉ : Customisation PIN forcée au 1er lancement (modale bloquante après login si PIN encore par défaut). Refuse les PINs triviaux (1234, 0000, chiffres répétés) et le PIN master.",
-    "🎨 CSS .inp normalisé : tous les inputs/selects partagent le même style propre (border, focus halo bleu, hover, dark mode)",
-    "🎨 Calculateurs RP : champs Énergie/Dose initiale/Dose finale/Matériau alignés en grille (équerre parfaite)",
-    "🎨 Modèles courriers : Variables par défaut en form-grid, labels monospace au-dessus",
-    "🎨 Centre d'exports : vraies cards (bordure, hover translateY, accent vertical bleu) + en-têtes de catégorie soulignés",
-    "🎨 Onboarding (1er lancement) : refonte des 4 étapes (Établissement, PCR, Travailleur, Appareil) en form-grid premium",
-    "🎨 Modal édition travailleur : refonte complète en form-grid (Identité, Classement, Formations, Entrée/Sortie)",
-    "🛠️ Halo focus passé en --ac3 (plus visible en dark mode)",
-    "🛠️ Cleanup ancien .courrier-var (style inline conflictuel supprimé)"
+    "🎨 Polish final empty states : Journal d'activité (avec différenciation vide vs filtré), Examens mensuels (CTA vers inventaire si pas d'appareils actifs). Total 13 pages avec empty state pro.",
+    "✓ Validation syntaxe JS sur les 2 builds via node --check."
   ]
 }
