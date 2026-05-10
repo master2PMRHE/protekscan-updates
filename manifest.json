@@ -1,8 +1,8 @@
 {
-  "version": "1.12.1",
-  "releaseDate": "2026-05-09",
-  "changelog": "🐛 Hotfix : proposition de mise à jour vers une version antérieure\n\nCorrection du bug : pendingManifest stocké en localStorage n'était pas re-comparé au boot, causant l'affichage de propositions vers des versions plus anciennes (ex: 1.12 propose 1.7).\n\nFixé\n- Nettoyage automatique de pendingManifest si version installée >= version pending\n- Sécurisation du badge clic (re-comparaison à chaque action)\n- Sécurisation du trigger startup\n- Notifications de mise à jour seulement si version manifest > version installée\n\nNote : si tu vois encore une proposition obsolète après installation de v1.12.1, va dans Paramètres > Centre de mise à jour et clique sur 'Vérifier maintenant'. Sinon, vide le cache navigateur.",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.12.1.html",
-  "size": 1303500,
+  "version": "1.13.0",
+  "releaseDate": "2026-05-10",
+  "changelog": "🆕 ProtekScan v1.13.0 — 2 nouveaux modules majeurs\n\n📋 BILAN ANNUEL RP AUTOMATIQUE (Article R.4451-122 CT)\n• Génération PDF en 1 clic, format A4 imprimable\n• 12 sections réglementaires : présentation, personnel, suivi médical, dosimétrie passive et opérationnelle, inventaire, locaux, incidents/ESR, plan d'action, conformité, veille, perspectives N+1\n• Page de garde, sommaire, signatures PCR/Direction\n• Sélecteur d'année, KPI live\n• Top 5 expositions cumulées calculé automatiquement\n• Tableaux d'incidents et plans d'action de l'année\n\n🔍 PRÉPARATION INSPECTION ASNR (38 points)\n• Checklist visuelle 8 sections : désignation, personnel, dosimétrie, locaux, équipements, procédures, documentation, cas particuliers\n• 3 statuts cycliques : OK / À vérifier / KO\n• Auto-statuts intelligents (PCR désigné, formations valides, aptitudes, contrôles…) via ⚙️\n• Score de préparation en %\n• Notes individuelles par point\n• PDF d'audit avec page de garde, synthèse, KO en priorité, détail par section, liste de 18 documents à préparer le jour J\n\n🔧 Bonus\n• Hotfix v1.12.1 inclus (nettoyage pendingManifest)\n• Nouvelles entrées dans la barre latérale après Physique médicale\n\nNote : si tu vois encore une proposition obsolète après installation, va dans Paramètres > Centre de mise à jour > Vérifier maintenant. Sinon, vide le cache.",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.13.0.html",
+  "size": 1365985,
   "minVersionRequired": "1.0.0"
 }
