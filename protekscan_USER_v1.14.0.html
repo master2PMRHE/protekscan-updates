@@ -27101,33 +27101,45 @@ function _injectPageHelpBtn(){
 
   // Single function: re-apply all enhancements
   function _applyAllEnhancements(){
-    // 1) ? button on each page header
+    // 1) ? button on each page header — FORCE BRUTE: tous les selecteurs possibles
     try {
-      if(typeof openContextualHelp === 'function'){
-        const heads = document.querySelectorAll('#main .section-head, #main .page-header');
-        heads.forEach(head => {
-          if(head.querySelector('.page-help-btn')) return; // already there
-          const helpBtn = document.createElement('button');
-          helpBtn.className = 'page-help-btn';
-          helpBtn.innerHTML = '?';
-          helpBtn.title = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Help on this page' : 'Aide sur cette page';
-          helpBtn.setAttribute('data-no-translate', '');
-          helpBtn.style.cssText = 'min-width:30px;width:30px;height:30px;padding:0;font-size:14px;font-weight:700;color:var(--ac);background:transparent;border:1.5px solid var(--ac);border-radius:50%;cursor:pointer;line-height:1;font-family:Georgia,serif;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:6px';
-          helpBtn.onmouseenter = () => { helpBtn.style.background = 'var(--ac)'; helpBtn.style.color = '#fff'; };
-          helpBtn.onmouseleave = () => { helpBtn.style.background = 'transparent'; helpBtn.style.color = 'var(--ac)'; };
-          helpBtn.onclick = (e) => {
-            e.stopPropagation();
-            try { openContextualHelp(); } catch(err){ console.warn('[page-help]', err); }
-          };
-          // Insert into .actions if available, else append to head
-          let actions = head.querySelector('.actions, .ph-actions');
-          if(actions){
-            actions.appendChild(helpBtn);
-          } else {
-            head.appendChild(helpBtn);
-          }
-        });
-      }
+      const heads = document.querySelectorAll('#main .section-head, #main .page-header, #main .page-head, #main .page-title, #main h1');
+      let added = 0;
+      heads.forEach(head => {
+        // Already has a help button somewhere in this header?
+        if(head.querySelector('.page-help-btn')) return;
+        // For h1, only add if it's a top-level title (not inside .modal-head etc)
+        if(head.tagName === 'H1' && head.closest('.modal-head, .card-head, .nav-grp-head')) return;
+        const helpBtn = document.createElement('button');
+        helpBtn.className = 'page-help-btn';
+        helpBtn.innerHTML = '?';
+        helpBtn.type = 'button';
+        helpBtn.title = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Help on this page' : 'Aide sur cette page';
+        helpBtn.setAttribute('data-no-translate', '');
+        helpBtn.setAttribute('aria-label', 'Aide');
+        helpBtn.style.cssText = 'min-width:32px !important;width:32px !important;height:32px !important;padding:0 !important;margin-left:8px !important;font-size:15px !important;font-weight:700 !important;color:#0f6ca8 !important;background:#fff !important;border:2px solid #0f6ca8 !important;border-radius:50% !important;cursor:pointer !important;line-height:1 !important;flex-shrink:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;font-family:Georgia,serif !important;box-shadow:0 1px 3px rgba(0,0,0,.1) !important;vertical-align:middle !important';
+        helpBtn.onmouseenter = () => { helpBtn.style.setProperty('background','#0f6ca8','important'); helpBtn.style.setProperty('color','#fff','important'); helpBtn.style.setProperty('transform','scale(1.1)','important'); };
+        helpBtn.onmouseleave = () => { helpBtn.style.setProperty('background','#fff','important'); helpBtn.style.setProperty('color','#0f6ca8','important'); helpBtn.style.setProperty('transform','none','important'); };
+        helpBtn.onclick = (e) => {
+          e.preventDefault(); e.stopPropagation();
+          try {
+            if(typeof openContextualHelp === 'function') openContextualHelp();
+            else console.warn('[page-help] openContextualHelp not available yet');
+          } catch(err){ console.warn('[page-help]', err); }
+        };
+        // Try to insert into .actions, else into the head itself
+        let actions = head.querySelector('.actions, .ph-actions');
+        if(actions){
+          actions.appendChild(helpBtn);
+        } else if(head.tagName === 'H1'){
+          // For h1, append after it (sibling)
+          head.parentNode?.insertBefore(helpBtn, head.nextSibling);
+        } else {
+          head.appendChild(helpBtn);
+        }
+        added++;
+      });
+      if(added > 0 && window._helpDebug) console.log('[page-help] added', added, 'buttons');
     } catch(e){ console.warn('[help-btn]', e); }
 
     // 2) Dashboard accordion + clickable items (only when on dashboard)
@@ -27226,8 +27238,12 @@ function _injectPageHelpBtn(){
     });
     obs.observe(main, { childList: true, subtree: false });
 
-    // Initial application
+    // Initial application + retries
     setTimeout(_applyAllEnhancements, 200);
+    setTimeout(_applyAllEnhancements, 1500);
+    setTimeout(_applyAllEnhancements, 3500);
+    // Brute force: re-check every 1s
+    setInterval(_applyAllEnhancements, 1000);
   }
 
   if(document.readyState === 'loading'){
