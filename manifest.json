@@ -1,8 +1,8 @@
 {
-  "version": "1.12.0",
+  "version": "1.12.1",
   "releaseDate": "2026-05-09",
-  "changelog": "Fiche travailleur niveau ABGX (exploitation max screens)\n\n⚛️ Champs SISERI complets dans la fiche travailleur\n- Métier SISERI (13 valeurs IRSN : Manipulateur, Radiologue, Cardiologue, Chirurgien, IDE, Aide-soignant, Brancardier, Cadre, Secrétaire médicale, Administratif, Technicien, Maintenance, Autre)\n- Secteur d'activité SISERI (Radiodiagnostic, Radiologie/Cardiologie interventionnelle, Bloc opératoire, Recherche, Autre)\n- Quotité de travail (0-1)\n- Travailleur externe / libéral (toggle)\n\n🆔 Numéros de porteur (dosimétrie passive)\n- LANDAUER (le plus utilisé en France)\n- APVL\n- Dosilab\n- Pour réconciliation des doses avec le prestataire\n\n🏷️ Identifiants & étiquettes\n- Code opérationnel (déjà v1.11)\n- N° suivi médical SISERI\n- N° ADELI / RPPS\n- Étiquettes libres (ex: bloc, urgence, vacataire) séparées par virgule\n\n🔍 Filtres avancés sur la liste Formations (style ABGX)\n- Recherche libre (nom, prénom, organisme...)\n- Filtre par catégorie d'exposition (A / Non classé)\n- Filtre par métier SISERI\n- Filtre par contrat (CDI/CDD/Intérim/Vacataire/Libéral)\n- Filtre par étiquette\n- Filtre par alertes (avec/sans alerte)\n- Filtres persistés dans localStorage\n- Bouton 'Réinitialiser' contextuel\n\n⏭ Skip volontaire pour Saint-Georges (radio-only)\n- Pass EDF (spécifique EDF)\n- CEA (médecine nucléaire)\n- Civilité (peu utile)\n- N° RNIPP (rarement renseigné)",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.12.0.html",
-  "size": 1302400,
+  "changelog": "🐛 Hotfix : proposition de mise à jour vers une version antérieure\n\nCorrection du bug : pendingManifest stocké en localStorage n'était pas re-comparé au boot, causant l'affichage de propositions vers des versions plus anciennes (ex: 1.12 propose 1.7).\n\nFixé\n- Nettoyage automatique de pendingManifest si version installée >= version pending\n- Sécurisation du badge clic (re-comparaison à chaque action)\n- Sécurisation du trigger startup\n- Notifications de mise à jour seulement si version manifest > version installée\n\nNote : si tu vois encore une proposition obsolète après installation de v1.12.1, va dans Paramètres > Centre de mise à jour et clique sur 'Vérifier maintenant'. Sinon, vide le cache navigateur.",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.12.1.html",
+  "size": 1303500,
   "minVersionRequired": "1.0.0"
 }
