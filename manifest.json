@@ -1,13 +1,15 @@
 {
-  "version": "1.16.1",
-  "releaseDate": "2026-05-10",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.16.1.html",
-  "size": 1729786,
-  "sha256": "7ac03460e75ad7ceba187fb6e2a0027b16eef149c84d18a57aad65caada3debb",
+  "version": "1.22.0",
+  "releaseDate": "2026-05-11",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.22.0.html",
+  "size": 1816461,
+  "sha256": "9eb1d593eec944844c083d92287c5182a579e687534bf2b3fde2568dc5207002",
   "minVersion": "1.14.0",
   "mandatory": false,
   "changelog": [
-    "🎨 Polish final empty states : Journal d'activité (avec différenciation vide vs filtré), Examens mensuels (CTA vers inventaire si pas d'appareils actifs). Total 13 pages avec empty state pro.",
-    "✓ Validation syntaxe JS sur les 2 builds via node --check."
+    "🔽 Filtres par colonne dropdown (parité ABGX terminée) : sur chaque en-tête de tableau (Inventaire + Planning), un dropdown propose Trier ↑/↓ + Effacer tri + Filtrer par valeurs uniques. Recherche dans les valeurs, sélection multiple, boutons Tout/Aucun/Appliquer. Badge cliquable \"▾ N filtres colonne ✕\" dans la section-head pour voir et effacer rapidement. Stockage localStorage protekscan_col_filters. 4 colonnes filtrables sur inventaire (Nom, Modèle, Année, Lieu) et 4 sur planning (Date, Appareil, Type, Statut).",
+    "📋 Empty state Kanban : si pas de contrôles, affiche un état explicite avec boutons \"+ Nouveau contrôle\" et \"+ Ajouter un appareil\" au lieu de 4 colonnes vides.",
+    "📋 Empty state Inspection ASNR : bandeau bleu visible quand aucune donnée (appareils, travailleurs, formations, incidents) avec boutons rapides vers les sections à remplir + bouton \"Charger des données démo\".",
+    "✓ Validation node --check sur les 2 builds."
   ]
 }
