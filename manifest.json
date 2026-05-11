@@ -1,15 +1,16 @@
 {
-  "version": "1.26.0",
+  "version": "1.28.0",
   "releaseDate": "2026-05-11",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.26.0.html",
-  "size": 2164556,
-  "sha256": "8a614307a9a9d7d4ffddfa83a360917b92a1f5082ba0cedbdfd9fa70c8080f98",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.28.0.html",
+  "size": 2160587,
+  "sha256": "1d77fc440eef2e1c3b86832ab6a7017b2ccf6d58de7edef14c69b1fafbfe6195",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🧹 NETTOYAGE D'UN IMPORT PASSÉ — Pour les imports faits AVANT la v1.25 (sans snapshot automatique) : nouvel outil dans Paramètres > \"🧹 Nettoyer un import passé\" qui détecte tous les éléments ajoutés via les wizards d'import grâce à leur ID horodatée. Filtres par plage temporelle (24h / 7j / 30j / tous), tri chronologique, sélection multi avec \"Tout cocher\", preview détaillé par type. Snapshot auto créé AVANT la suppression pour permettre un undo. Solution dédiée pour Catherine et son import du fichier programme_des_controles_25042026.xlsx.",
-    "🔍 RECHERCHE GLOBALE ÉTENDUE — La barre Cmd+K/Ctrl+K indexe maintenant aussi : 👤 Travailleurs (nom/prénom/fonction/service/email), 🤝 Prestataires (nom/agrément/contact/email), 🩺 Visites médicales (nom travailleur/médecin/aptitude). Click direct sur un appareil ouvre maintenant sa FICHE DÉTAIL au lieu de juste highlighter la ligne — idem pour prestataires et travailleurs.",
-    "✓ Le tag visible \"<svg> travailleur\" / \"<svg> prestataire\" / \"<svg> visite médicale\" avec icônes dédiées.",
-    "✓ Validation node --check. Mise à jour FORTEMENT RECOMMANDÉE pour Catherine."
+    "🔍 RECHERCHE FULL-TEXT ROBUSTE — La barre de recherche (Cmd+K / Ctrl+K) scanne maintenant TOUS les champs string de chaque élément (au lieu de seulement quelques champs spécifiques). Si \"Epsilon\" est dans le champ modele, fabricant, type, description, note ou n'importe où d'autre, elle le trouve. Plus aucun risque de rater un appareil parce qu'un champ inattendu contenait la clé recherchée.",
+    "🔤 TOLÉRANT AUX ACCENTS ET CASSE — Recherche \"evaluation\" trouve \"Évaluation\", \"epsilon\" trouve \"EPSILON\", \"controle\" trouve \"contrôle\". Normalisation NFD qui supprime les diacritiques avant comparaison.",
+    "💡 Affichage du champ qui a matché : si on cherche \"16-B0065\" et que ça matche un N° série, le résultat affiche \"· N° 16-B0065\" ; pour un modèle \"· 📐 EPSILON EPS 45-80\" ; pour un n° d'installation \"· Install. M060051\". Tu vois immédiatement POURQUOI ProtekScan a remonté ce résultat.",
+    "📋 Empty state enrichi : quand aucun résultat, message clair expliquant que la recherche balaye tous les champs + suggestions (Voir l'inventaire / le planning). Aide à debug les cas où on attend un résultat mais n'en obtient pas (ex: après undo d'un import, les éléments ont disparu).",
+    "✓ Validation node --check. Update RECOMMANDÉ."
   ]
 }
