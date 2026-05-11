@@ -1,17 +1,15 @@
 {
-  "version": "1.24.0",
+  "version": "1.26.0",
   "releaseDate": "2026-05-11",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.24.0.html",
-  "size": 2114279,
-  "sha256": "a1bba865f0745f11da8d07e06dbc6984298d4bd9f10e8fa4b866187e4b973556",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.26.0.html",
+  "size": 2164556,
+  "sha256": "8a614307a9a9d7d4ffddfa83a360917b92a1f5082ba0cedbdfd9fa70c8080f98",
   "minVersion": "1.14.0",
-  "mandatory": false,
+  "mandatory": true,
   "changelog": [
-    "📊 SUPPORT XLSX NATIF — SheetJS Community Edition (xlsx.mini.min.js v0.18.5, Apache 2.0) bundlé dans le HTML (+250 KB). Le wizard accepte maintenant .xlsx et .xls directement, sans conversion CSV préalable. Lecture de la 1ère feuille du classeur, support des dates Excel formatées.",
-    "📚 TEMPLATES DE MAPPING SAUVEGARDÉS — Bouton \"Sauver ce mapping en template\" dans l'étape 3. Stockage localStorage protekscan_import_templates. Lors d'un import ultérieur avec les mêmes en-têtes (≥60% match), le template est automatiquement détecté et appliqué (badge vert \"✓ Template X\" affiché). Section \"Templates sauvegardés\" listée avec suppression possible.",
-    "📋 EXPORT MODÈLES CSV VIERGES — Boutons dans l'étape 1 : \"Télécharger tous les modèles CSV vierges\" (7 fichiers à la suite) + menu \"Modèles individuels\" pour ne télécharger qu'un type. Chaque modèle contient les en-têtes labelisés en FR avec exemples de valeurs (catégories, formats de date, codes types) pour guider la saisie. BOM UTF-8 + séparateur ; pour compatibilité Excel FR.",
-    "🔄 Détection intelligente de template : algorithme de similarité des en-têtes (score Jaccard ≥60%) applique automatiquement le bon template au bon fichier — l'utilisateur n'a plus besoin de refaire le mapping s'il importe régulièrement les mêmes Excel.",
-    "📈 Fichier total : ~2.1 MB (1.85 MB code app + 250 KB SheetJS bundle). Toujours 100% offline.",
-    "✓ Validation node --check sur les 2 builds."
+    "🧹 NETTOYAGE D'UN IMPORT PASSÉ — Pour les imports faits AVANT la v1.25 (sans snapshot automatique) : nouvel outil dans Paramètres > \"🧹 Nettoyer un import passé\" qui détecte tous les éléments ajoutés via les wizards d'import grâce à leur ID horodatée. Filtres par plage temporelle (24h / 7j / 30j / tous), tri chronologique, sélection multi avec \"Tout cocher\", preview détaillé par type. Snapshot auto créé AVANT la suppression pour permettre un undo. Solution dédiée pour Catherine et son import du fichier programme_des_controles_25042026.xlsx.",
+    "🔍 RECHERCHE GLOBALE ÉTENDUE — La barre Cmd+K/Ctrl+K indexe maintenant aussi : 👤 Travailleurs (nom/prénom/fonction/service/email), 🤝 Prestataires (nom/agrément/contact/email), 🩺 Visites médicales (nom travailleur/médecin/aptitude). Click direct sur un appareil ouvre maintenant sa FICHE DÉTAIL au lieu de juste highlighter la ligne — idem pour prestataires et travailleurs.",
+    "✓ Le tag visible \"<svg> travailleur\" / \"<svg> prestataire\" / \"<svg> visite médicale\" avec icônes dédiées.",
+    "✓ Validation node --check. Mise à jour FORTEMENT RECOMMANDÉE pour Catherine."
   ]
 }
