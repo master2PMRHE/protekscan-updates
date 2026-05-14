@@ -1,16 +1,16 @@
 {
-  "version": "1.37.2",
-  "releaseDate": "2026-05-12",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.2.html",
+  "version": "1.37.3",
+  "releaseDate": "2026-05-14",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.3.html",
   "size": 2494214,
-  "sha256": "972ee972e5bbe23008f7a104ab2e3b90c709cbbff5fcc37c186f3ef3a896e7b4",
+  "sha256": "01599b4e10870b1c54dfa5f7a9dedb6b6a55dbdcba854f0d6dfe5dfbe8c7c10f",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🐛 FIX PAGE PARAMÈTRES ADMIN BLANCHE — La fonction renderParametres d'ADMIN référençait sha256/loadMeta/saveMeta/setupAutoLock qui n'étaient pas déclarées dans ADMIN (uniquement présentes dans USER). Conséquence : ReferenceError silencieuse, page Paramètres blanche à l'ouverture.",
-    "🔐 MODULE SÉCURITÉ PIN + CHIFFREMENT AES-GCM INJECTÉ DANS ADMIN — Ajout des fonctions manquantes : sha256 (hash SHA-256), deriveKeyFromPin (PBKDF2 50k itérations + sel), encryptJSON / decryptJSON (AES-GCM 256), loadMeta / saveMeta (gestion clé META_KEY 'protekscan_user_meta_v2'), setupAutoLock (auto-verrouillage après inactivité). ADMIN aligné avec USER côté sécurité.",
-    "🔁 renderParametres ADMIN REMPLACÉE par celle de USER (62984 bytes au lieu des 56808 obsolètes) — Vérification AST acorn : 0 dépendance manquante. Page Paramètres désormais identique à USER avec gestion PIN, export/import, sauvegardes, thèmes, etc.",
-    "✅ TEST SYNTAX — node --check OK sur USER (2.03 MB) + ADMIN (1.99 MB)",
-    "📝 LEÇON RETENUE — Lors du cleanup v1.37.1, garder 'la version la plus longue' n'est pas toujours bon : la version la plus courte d'ADMIN était parfois la version réellement utilisée (dernière déclaration prime en JS) et donc la version testée. Pour la prochaine consolidation USER ↔ ADMIN, prendre systématiquement la version USER comme référence."
+    "🐛 FIX FINAL PAGE PARAMÈTRES ADMIN — Diagnostic complet via navigateur headless Playwright. Erreur trouvée : ReferenceError: _instanceUUID is not defined dans renderParametres ligne 13557.",
+    "🔧 3 VARIABLES MANQUANTES INJECTÉES DANS ADMIN — _MASTER_PIN_HASH (null), _instanceUUID ('admin-' + hash random), _accessLog ({count:0, last:null}). Ces variables sont déclarées dans USER mais avaient été oubliées dans ADMIN. La copie de renderParametres v1.37.2 référençait _instanceUUID et la fonction plantait silencieusement à la première utilisation.",
+    "🔐 INIT _MASTER_PIN_HASH au chargement (await sha256(_MASTER_PIN)) ajouté dans la phase init de ADMIN avant le module PWA.",
+    "✅ VALIDATION HEADLESS PLAYWRIGHT — Test automatique de toutes les pages ADMIN (24 pages testées). Résultat : 0 erreur JS, 0 page cassée. Page Paramètres affiche bien le titre 'Paramètres' avec 6876 caractères de contenu.",
+    "📝 LEÇON RETENUE — Lorsque l'on copie une fonction de USER vers ADMIN, il faut s'assurer que TOUTES les variables et fonctions qu'elle utilise sont aussi présentes dans la cible. Utilisation systématique de l'AST acorn + parcours des Identifier référencés pour valider toute la chaîne de dépendances."
   ]
 }
