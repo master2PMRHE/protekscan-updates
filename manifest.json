@@ -1,17 +1,16 @@
 {
-  "version": "1.37.1",
+  "version": "1.37.2",
   "releaseDate": "2026-05-12",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.1.html",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.2.html",
   "size": 2494214,
-  "sha256": "55e4acc30e8b87fb9002d4c2a8bf93423a7bba840fafa9cc01daeb06dcd2f593",
+  "sha256": "972ee972e5bbe23008f7a104ab2e3b90c709cbbff5fcc37c186f3ef3a896e7b4",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🛠️ FIX ADMIN — Résolution complète du problème de fonctions render géantes dupliquées dans ADMIN (signalé en v1.37.0). Utilisation du parseur AST acorn 8.16.0 (au lieu de regex naïves qui ne gèrent pas les template literals JS imbriqués).",
-    "🗑️ 9 DOUBLONS ADMIN SUPPRIMÉS — renderParametres (-35.6 KB, la version courte écrasait la version riche de 56 KB), renderCalendrier (-12.3 KB), renderPlanning (-12.2 KB, version sans _applyColFilters supprimée), renderTutoriel (-9 KB), renderAstuces (-3.7 KB), renderCreateur (-2.7 KB), _idbOpen (-0.4 KB), _idbSet (-0.3 KB), _idbGet (-0.3 KB). Total : **74.8 KB libérés**. Pour chaque doublon, la copie la plus grande (présumée la plus récente/complète) a été conservée.",
-    "🔧 _toggleFocusMode RESTAURÉE — Cette fonction avait disparu d'ADMIN lors d'un cleanup précédent alors qu'elle était référencée par le bouton 🎯 de la topbar et la cmd palette. Désormais bien déclarée et exposée sur window.",
-    "✅ AUDIT AST FINAL — Confirmation via parseur AST acorn : 0 fonctions doublonnées au top-level (sauf 'render' × 8 = fonctions locales dans des closures différentes, ce qui est normal et sans impact). 611 fonctions uniques détectées dans ADMIN.",
-    "📊 TAILLES — USER : 2.38 MB (inchangé). ADMIN : 2.32 MB (vs 2.36 MB v1.36, -16%). USER+ADMIN désormais cohérents.",
-    "✅ TEST SYNTAX — node --check OK sur USER + ADMIN. Toutes les fonctions critiques (renderPlanning, renderCalendrier, renderParametres, _genererPUR, _genererTableauBordPCR, _toggleFocusMode, _undoLastAction, _launchConfetti, _idbSet, _idbGet) sont déclarées exactement 1 fois et référencées normalement."
+    "🐛 FIX PAGE PARAMÈTRES ADMIN BLANCHE — La fonction renderParametres d'ADMIN référençait sha256/loadMeta/saveMeta/setupAutoLock qui n'étaient pas déclarées dans ADMIN (uniquement présentes dans USER). Conséquence : ReferenceError silencieuse, page Paramètres blanche à l'ouverture.",
+    "🔐 MODULE SÉCURITÉ PIN + CHIFFREMENT AES-GCM INJECTÉ DANS ADMIN — Ajout des fonctions manquantes : sha256 (hash SHA-256), deriveKeyFromPin (PBKDF2 50k itérations + sel), encryptJSON / decryptJSON (AES-GCM 256), loadMeta / saveMeta (gestion clé META_KEY 'protekscan_user_meta_v2'), setupAutoLock (auto-verrouillage après inactivité). ADMIN aligné avec USER côté sécurité.",
+    "🔁 renderParametres ADMIN REMPLACÉE par celle de USER (62984 bytes au lieu des 56808 obsolètes) — Vérification AST acorn : 0 dépendance manquante. Page Paramètres désormais identique à USER avec gestion PIN, export/import, sauvegardes, thèmes, etc.",
+    "✅ TEST SYNTAX — node --check OK sur USER (2.03 MB) + ADMIN (1.99 MB)",
+    "📝 LEÇON RETENUE — Lors du cleanup v1.37.1, garder 'la version la plus longue' n'est pas toujours bon : la version la plus courte d'ADMIN était parfois la version réellement utilisée (dernière déclaration prime en JS) et donc la version testée. Pour la prochaine consolidation USER ↔ ADMIN, prendre systématiquement la version USER comme référence."
   ]
 }
