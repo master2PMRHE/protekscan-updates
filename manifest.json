@@ -1,16 +1,15 @@
 {
-  "version": "1.37.3",
-  "releaseDate": "2026-05-14",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.3.html",
-  "size": 2494214,
-  "sha256": "01599b4e10870b1c54dfa5f7a9dedb6b6a55dbdcba854f0d6dfe5dfbe8c7c10f",
+  "version": "1.37.13",
+  "releaseDate": "2026-05-15",
+  "size": 2518021,
+  "sha256": "3a68ed9fbe34eeb66b63a3cd93dd0c59ae3c3cbb0670e981ecfc0b42f1ac0e88",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🐛 FIX FINAL PAGE PARAMÈTRES ADMIN — Diagnostic complet via navigateur headless Playwright. Erreur trouvée : ReferenceError: _instanceUUID is not defined dans renderParametres ligne 13557.",
-    "🔧 3 VARIABLES MANQUANTES INJECTÉES DANS ADMIN — _MASTER_PIN_HASH (null), _instanceUUID ('admin-' + hash random), _accessLog ({count:0, last:null}). Ces variables sont déclarées dans USER mais avaient été oubliées dans ADMIN. La copie de renderParametres v1.37.2 référençait _instanceUUID et la fonction plantait silencieusement à la première utilisation.",
-    "🔐 INIT _MASTER_PIN_HASH au chargement (await sha256(_MASTER_PIN)) ajouté dans la phase init de ADMIN avant le module PWA.",
-    "✅ VALIDATION HEADLESS PLAYWRIGHT — Test automatique de toutes les pages ADMIN (24 pages testées). Résultat : 0 erreur JS, 0 page cassée. Page Paramètres affiche bien le titre 'Paramètres' avec 6876 caractères de contenu.",
-    "📝 LEÇON RETENUE — Lorsque l'on copie une fonction de USER vers ADMIN, il faut s'assurer que TOUTES les variables et fonctions qu'elle utilise sont aussi présentes dans la cible. Utilisation systématique de l'AST acorn + parcours des Identifier référencés pour valider toute la chaîne de dépendances."
+    "🗑️ SUPPRESSION TOTALE DU MODE FOCUS ZEN — Cette fonctionnalité de v1.36 (masquage sidebar/topbar pour se concentrer) a été supprimée intégralement à la demande utilisateur. Cause : interférence persistante non identifiée avec le rendu de page sur Chrome macOS 148 spécifique chez Yanis, malgré 7 versions de correctifs (1.37.5 à 1.37.12). Décision pragmatique : virer la feature plutôt que continuer à patcher.",
+    "🧹 NETTOYÉ DANS USER + ADMIN — Bouton 🎯 de la topbar retiré, fonction _toggleFocusMode supprimée, CSS body.focus-mode supprimé, raccourci Ctrl+. désactivé, entrée 'act-focus-mode' retirée de la cmd palette Ctrl+K, bouton secondaire #btn-focus-mode des paramètres retiré, handlers debug overlay supprimés, garde-fous v1.37.11/v1.37.12 supprimés.",
+    "✅ VALIDATION HEADLESS PLAYWRIGHT — ADMIN charge normalement : body sans classe parasite, sidebar visible (display:flex), topbar visible, dashboard rendu avec H1 'Tableau de bord', 0 erreur JS, window._toggleFocusMode = undefined.",
+    "🔧 OVERLAY DEBUG CONSERVÉ — Le badge debug et l'overlay diagnostic restent disponibles (clic sur badge en bas à gauche, ou F9, ou Ctrl+Alt+D). Pour les futurs problèmes éventuels.",
+    "📝 LEÇON RETENUE — Une feature qui interfère silencieusement avec le rendu (opacity:0 → 1 via classe conditionnelle) est plus dangereuse que utile. Préférer des features qui fail-safe (visible par défaut)."
   ]
 }
