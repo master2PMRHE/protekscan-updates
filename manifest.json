@@ -1,15 +1,16 @@
 {
-  "version": "1.37.14",
-  "releaseDate": "2026-05-15",
-  "size": 2529732,
-  "sha256": "72f5cbabd4280234faf6b929001b1d1cb03db6baf00a956fb16cc9b1577a7bef",
+  "version": "1.37.28",
+  "releaseDate": "2026-05-16",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.28.html",
+  "size": 2521554,
+  "sha256": "e3ee6d9158cbd5e798b523c0adeaa8ca795d310ee9ac598750bd3da2ca9f72da",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🎓 ONBOARDING COMPLET — Le guide passe de 7 à 13 étapes pour couvrir TOUT ce qu'un PCR doit savoir faire dans ProtekScan : (1) bienvenue, (2) établissement FINESS+adresse, (3) infos PCR formation+contact, (4) premier travailleur exposé catégorie+métier, (5) premier appareil émetteur, (6) première zone réglementée R.4451-23 classification+date, (7) explication contrôles techniques R.4451-30 (initial/périodique/après modification), (8) explication dosimétrie+exports SISERI 2025+détection anomalies, (9) module RH groupé (formations R.4451-58 / incidents ESR workflow ASNR / templates courriers PCR 20+ modèles), (10) vérification de cohérence avant inspection ASNR, (11) configuration PIN+sauvegarde dossier local, (12) tour modules quotidiens, (13) récapitulatif final.",
-    "🎯 ÉTAPES INTERACTIVES — Les étapes 1-6 + 11 demandent une saisie réelle qui crée les données (établissement, PCR, travailleur, appareil, zone, PIN). Les étapes 7-10 + 12 sont des présentations sans saisie pour expliquer l'usage de chaque module. Yanis peut sauter chaque étape avec 'Passer' si besoin.",
-    "✅ ÉCRAN BIENVENUE MIS À JOUR — Annonce désormais explicitement les 9 catégories de contenu : identité établissement, infos PCR, travailleur, appareil, zone, contrôles+dosimétrie+SISERI, formations+incidents+courriers, vérification cohérence+sauvegarde+PIN, tour modules. Durée annoncée 15 min (vs 10 min avant).",
-    "🔄 SYNCHRONISATION USER ↔ ADMIN — Le bloc steps[] est désormais identique dans les 2 builds (copié de USER vers ADMIN). Plus de divergence comme avant où ADMIN n'avait que partiel.",
-    "📦 Tailles : USER 2.41 MB · ADMIN 2.36 MB"
+    "🪗 PARAMÈTRES EN ACCORDÉON — Toutes les 17 catégories de la page Paramètres sont maintenant des cards COLLAPSIBLES (comme l'inventaire). Au chargement : tout est fermé. Clic sur le titre → ouvre la section. Re-clic ou changement de page → referme. Plus de scroll infini, on voit d'un coup d'œil toutes les sections.",
+    "💡 BOUTON ? D'AIDE — Chaque catégorie a une icône ? à droite du titre. Clic → ouvre une modale avec les sections détaillées de _GUIDE_FR.parametres correspondantes (à quoi ça sert, comment ça marche, références réglementaires). 13 sections couvertes : identité, logo, notifs, PIN, verrouillage, backups, sync cloud, MAJ, thème, zone sensible, mode offline, RGPD.",
+    "🗑️ DOUBLON SUPPRIMÉ — Card 'Export & sauvegarde' (Planning CSV / Inventaire CSV / Excel multi-onglets / Sauvegarde JSON) doublonnait le Centre d'exports (12 types). Supprimée. Le bouton 'Synchroniser avec mon calendrier' a été déplacé dans la card 'Outils PCR' où il est plus logique.",
+    "🗑️ DOUBLON SUPPRIMÉ — Bouton '📥 Import multi-fichiers' dans la 1ère card 'Personnalisation' doublonnait la page **Importeur CSV** dans la sidebar. Supprimé. Le bouton 'Annuler un import' reste car non accessible ailleurs.",
+    "✏️ RENOMMAGE — 2 cards étaient nommées 'Personnalisation' (contenus différents). La 2ème (champs personnalisés des appareils) renommée en 'Champs personnalisés' pour éviter la confusion."
   ]
 }
