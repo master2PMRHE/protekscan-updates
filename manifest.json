@@ -1,16 +1,17 @@
 {
-  "version": "1.37.32",
-  "releaseDate": "2026-05-16",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.32.html",
-  "size": 2547920,
-  "sha256": "010fc7e2e4c559bd2617e8b72eff2516a29f753f2fd218c384784961a1bd4f47",
+  "version": "1.37.33",
+  "releaseDate": "2026-05-17",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.33.html",
+  "size": 2551234,
+  "sha256": "fdbd408ed4690082c7b9e0435c9773c645a09e7a41132de96918ec9ba47c305d",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🛡️ EPI/EPC : 16 TYPES SPÉCIFIQUES — Le formulaire d'appareil propose maintenant 8 types EPI (Tablier sans manches/avec manches/chasuble, Cache-thyroïde, Lunettes plombées, Gants, Calotte, Protège-gonades) et 8 types EPC (Vitre, Paravent mobile/fixe, Suspension plafonnière, Bavette sous-table, Cabine, Porte, Rideau plombé). ABGX en avait 6, nous on en a 16.",
-    "📋 SECTION SPÉCIFIQUE EPI/EPC — Quand tu choisis la catégorie EPI ou EPC dans le formulaire d'appareil, une section dédiée apparaît automatiquement avec 10 champs : Type · Épaisseur équivalent plomb (mm Pb avec datalist 0.25/0.35/0.5/0.7/1.0/1.5/2.0) · Classe norme EN 61331-3 · Code barre (scannable USB) · Date dernière vérif intégrité · Fréquence vérif (mois, défaut 12) · Dimensions · Poids · Taille (XS-XXXL pour tabliers) · Date limite d'utilisation (DLU).",
-    "📊 10 NOUVELLES COLONNES CONFIGURABLES — Toutes les propriétés EPI/EPC sont disponibles dans les colonnes configurables du tableau Inventaire. Total : 27 propriétés sélectionnables vs 11 chez ABGX. Avec en plus 2 calculs ABGX-killer : **Prochaine vérif intégrité** (avec jours restants colorés rouge si dépassée, orange si <60j) et **Statut DLU** (rouge si dépassée, orange si <90j).",
-    "🔄 FORM ADAPTATIF — Le sélecteur de Type EPI/EPC se met à jour automatiquement quand tu changes la catégorie. Catégorie 'EPI radioprotection' → liste les 8 types EPI. Catégorie 'EPC Protection collective' → liste les 8 types EPC. Autres catégories (RX/Dosi) → la section EPI/EPC reste cachée.",
-    "💾 NORMES INTÉGRÉES — Les épaisseurs Pb standards (datalist) et les 3 classes EN 61331-3 (Classe 1=0,25 mm / Classe 2=0,5 mm / Classe 3=1,0 mm Pb) sont proposées en auto-complétion pour éviter les saisies non normalisées."
+    "🦺 EPI : ÉPAISSEUR Pb AVANT + ARRIÈRE — Pour les tabliers chasubles (recto-verso), tu peux maintenant saisir séparément l'épaisseur équivalent plomb de la face AVANT (exposée RX, typiquement 0,5 mm) et de la face ARRIÈRE (typiquement 0,25 mm). Si tu remplis seulement l'avant, l'arrière reste vide. La colonne 'Pb (mm)' affiche 'X/Y mm' si avant ≠ arrière, sinon juste 'X mm Pb'. ABGX a cette fonctionnalité, on l'a aussi maintenant.",
+    "🧪 MATÉRIAU — Nouveau champ avec datalist proposant les 6 matériaux EPI réglementaires : Plomb · Baryum-bismuth (sans plomb) · Composite (plomb + autres) · Antimoine-étain · Tungstène · Bismuth-plomb. Auto-complétion intelligente : tape 'b', Baryum et Bismuth apparaissent.",
+    "🎨 COULEUR — Champ libre pour identifier visuellement les EPI (Bleu marine, Rouge, Vert, etc.). Pratique pour le repérage rapide dans les vestiaires de bloc.",
+    "📊 30 PROPRIÉTÉS CONFIGURABLES (vs 11 ABGX) — Ajout des colonnes 'Pb avant', 'Pb arrière', 'Matériau', 'Couleur' dans le tableau Inventaire. Tri 3-states sur chacune.",
+    "🔄 MIGRATION DOUCE — Les EPI existants avec un seul champ epaisseurPb continuent de fonctionner : la valeur unique est traitée comme 'avant'. Tu peux ajouter l'arrière progressivement au fil des contrôles. Aucune perte de données.",
+    "📦 RÉORGANISATION FORMULAIRE — La section 'Caractéristiques EPI/EPC' est maintenant organisée en 4 groupes logiques : (1) Type + Matériau, (2) Épaisseurs Pb avant/arrière, (3) Classe + Code barre, (4) Vérif intégrité + Dimensions/Couleur + Poids/Taille + DLU. Plus clair, plus rapide à remplir."
   ]
 }
