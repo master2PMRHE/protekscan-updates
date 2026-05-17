@@ -1,16 +1,16 @@
 {
-  "version": "1.37.28",
+  "version": "1.37.32",
   "releaseDate": "2026-05-16",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.28.html",
-  "size": 2521554,
-  "sha256": "e3ee6d9158cbd5e798b523c0adeaa8ca795d310ee9ac598750bd3da2ca9f72da",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.32.html",
+  "size": 2547920,
+  "sha256": "010fc7e2e4c559bd2617e8b72eff2516a29f753f2fd218c384784961a1bd4f47",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🪗 PARAMÈTRES EN ACCORDÉON — Toutes les 17 catégories de la page Paramètres sont maintenant des cards COLLAPSIBLES (comme l'inventaire). Au chargement : tout est fermé. Clic sur le titre → ouvre la section. Re-clic ou changement de page → referme. Plus de scroll infini, on voit d'un coup d'œil toutes les sections.",
-    "💡 BOUTON ? D'AIDE — Chaque catégorie a une icône ? à droite du titre. Clic → ouvre une modale avec les sections détaillées de _GUIDE_FR.parametres correspondantes (à quoi ça sert, comment ça marche, références réglementaires). 13 sections couvertes : identité, logo, notifs, PIN, verrouillage, backups, sync cloud, MAJ, thème, zone sensible, mode offline, RGPD.",
-    "🗑️ DOUBLON SUPPRIMÉ — Card 'Export & sauvegarde' (Planning CSV / Inventaire CSV / Excel multi-onglets / Sauvegarde JSON) doublonnait le Centre d'exports (12 types). Supprimée. Le bouton 'Synchroniser avec mon calendrier' a été déplacé dans la card 'Outils PCR' où il est plus logique.",
-    "🗑️ DOUBLON SUPPRIMÉ — Bouton '📥 Import multi-fichiers' dans la 1ère card 'Personnalisation' doublonnait la page **Importeur CSV** dans la sidebar. Supprimé. Le bouton 'Annuler un import' reste car non accessible ailleurs.",
-    "✏️ RENOMMAGE — 2 cards étaient nommées 'Personnalisation' (contenus différents). La 2ème (champs personnalisés des appareils) renommée en 'Champs personnalisés' pour éviter la confusion."
+    "🛡️ EPI/EPC : 16 TYPES SPÉCIFIQUES — Le formulaire d'appareil propose maintenant 8 types EPI (Tablier sans manches/avec manches/chasuble, Cache-thyroïde, Lunettes plombées, Gants, Calotte, Protège-gonades) et 8 types EPC (Vitre, Paravent mobile/fixe, Suspension plafonnière, Bavette sous-table, Cabine, Porte, Rideau plombé). ABGX en avait 6, nous on en a 16.",
+    "📋 SECTION SPÉCIFIQUE EPI/EPC — Quand tu choisis la catégorie EPI ou EPC dans le formulaire d'appareil, une section dédiée apparaît automatiquement avec 10 champs : Type · Épaisseur équivalent plomb (mm Pb avec datalist 0.25/0.35/0.5/0.7/1.0/1.5/2.0) · Classe norme EN 61331-3 · Code barre (scannable USB) · Date dernière vérif intégrité · Fréquence vérif (mois, défaut 12) · Dimensions · Poids · Taille (XS-XXXL pour tabliers) · Date limite d'utilisation (DLU).",
+    "📊 10 NOUVELLES COLONNES CONFIGURABLES — Toutes les propriétés EPI/EPC sont disponibles dans les colonnes configurables du tableau Inventaire. Total : 27 propriétés sélectionnables vs 11 chez ABGX. Avec en plus 2 calculs ABGX-killer : **Prochaine vérif intégrité** (avec jours restants colorés rouge si dépassée, orange si <60j) et **Statut DLU** (rouge si dépassée, orange si <90j).",
+    "🔄 FORM ADAPTATIF — Le sélecteur de Type EPI/EPC se met à jour automatiquement quand tu changes la catégorie. Catégorie 'EPI radioprotection' → liste les 8 types EPI. Catégorie 'EPC Protection collective' → liste les 8 types EPC. Autres catégories (RX/Dosi) → la section EPI/EPC reste cachée.",
+    "💾 NORMES INTÉGRÉES — Les épaisseurs Pb standards (datalist) et les 3 classes EN 61331-3 (Classe 1=0,25 mm / Classe 2=0,5 mm / Classe 3=1,0 mm Pb) sont proposées en auto-complétion pour éviter les saisies non normalisées."
   ]
 }
