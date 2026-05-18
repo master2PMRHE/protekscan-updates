@@ -1,17 +1,19 @@
 {
-  "version": "1.37.33",
+  "version": "1.37.37",
   "releaseDate": "2026-05-17",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.33.html",
-  "size": 2551234,
-  "sha256": "fdbd408ed4690082c7b9e0435c9773c645a09e7a41132de96918ec9ba47c305d",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.37.html",
+  "size": 2625836,
+  "sha256": "37e1a1848aa25cd49cd3249be0c2ae57ee629d88a1bcf807594235442dc323c3",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🦺 EPI : ÉPAISSEUR Pb AVANT + ARRIÈRE — Pour les tabliers chasubles (recto-verso), tu peux maintenant saisir séparément l'épaisseur équivalent plomb de la face AVANT (exposée RX, typiquement 0,5 mm) et de la face ARRIÈRE (typiquement 0,25 mm). Si tu remplis seulement l'avant, l'arrière reste vide. La colonne 'Pb (mm)' affiche 'X/Y mm' si avant ≠ arrière, sinon juste 'X mm Pb'. ABGX a cette fonctionnalité, on l'a aussi maintenant.",
-    "🧪 MATÉRIAU — Nouveau champ avec datalist proposant les 6 matériaux EPI réglementaires : Plomb · Baryum-bismuth (sans plomb) · Composite (plomb + autres) · Antimoine-étain · Tungstène · Bismuth-plomb. Auto-complétion intelligente : tape 'b', Baryum et Bismuth apparaissent.",
-    "🎨 COULEUR — Champ libre pour identifier visuellement les EPI (Bleu marine, Rouge, Vert, etc.). Pratique pour le repérage rapide dans les vestiaires de bloc.",
-    "📊 30 PROPRIÉTÉS CONFIGURABLES (vs 11 ABGX) — Ajout des colonnes 'Pb avant', 'Pb arrière', 'Matériau', 'Couleur' dans le tableau Inventaire. Tri 3-states sur chacune.",
-    "🔄 MIGRATION DOUCE — Les EPI existants avec un seul champ epaisseurPb continuent de fonctionner : la valeur unique est traitée comme 'avant'. Tu peux ajouter l'arrière progressivement au fil des contrôles. Aucune perte de données.",
-    "📦 RÉORGANISATION FORMULAIRE — La section 'Caractéristiques EPI/EPC' est maintenant organisée en 4 groupes logiques : (1) Type + Matériau, (2) Épaisseurs Pb avant/arrière, (3) Classe + Code barre, (4) Vérif intégrité + Dimensions/Couleur + Poids/Taille + DLU. Plus clair, plus rapide à remplir."
+    "📋 89 POINTS DE CONTRÔLE OCR — Référentiel complet ABGX intégré mot pour mot. Réparti sur 3 activités : RPTE Travailleurs exposés (41 points · Code travail R.4451), RPPE Patients & Assurance qualité (18 points · Code Santé R.1333), IRM Champs électromagnétiques (30 points · Code travail R.4453). Précédemment 34 synthétiques, maintenant 89 atomiques. Page accessible dans la nav après Cohérence.",
+    "🎚️ CRITICITÉ NUMÉRIQUE ABGX — Chaque point a une criticité 1-25 (badge couleur dans la liste) : 12 Très haute (rouge), 9 Haute (orange), 6 Moyenne (jaune), 3 Faible (bleu). Tri auto par criticité décroissante. Filtre dédié.",
+    "🗂️ NAVIGATION 3 TABS — Onglets visuels Toutes / RPTE / RPPE / IRM avec compteurs (Toutes 89 · RPTE 41 · RPPE 18 · IRM 30). Couleur par activité (bleu/vert/violet). Switch instantané.",
+    "🔍 TRIPLE FILTRE — Catégorie (40 sous-thèmes), État (OUI/NON/N/A/Non évalué), Criticité (12/9/6/3). Cumulables.",
+    "📊 KPIs RECALCULÉS PAR ACTIVITÉ — Quand un onglet activité est sélectionné, les KPIs (Conformité, Non conformes, Non évalués) sont restreints à cette activité. Compteur criticité ≥12 mis en évidence.",
+    "🎨 STRUCTURE HIÉRARCHIQUE — Section Activité (header gradient couleur) → Sous-section Catégorie → Points avec badge criticité. Vue rapide par criticité, navigation fluide.",
+    "🆚 ABGX VS PROTEKSCAN — Égalité structurelle 100% (89 points, mêmes libellés, mêmes catégories, mêmes criticités). En plus : KPIs auto, filtre cumul Criticité, navigation par tabs activité, hiérarchie visuelle. Code mort `renderOCR` qui existait dans le code mais n'était pas branché à la nav est désormais accessible.",
+    "✅ HÉRITAGE v1.37.36 : Vue Locaux/Salles complète, indispos planning, Observations/Affectation dates/Alertes granulaires sur appareils, EPI/EPC 16 types, Physique Médicale 5 sections."
   ]
 }
