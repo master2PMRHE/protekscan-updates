@@ -1,19 +1,19 @@
 {
-  "version": "1.37.37",
-  "releaseDate": "2026-05-17",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.37.html",
-  "size": 2625836,
-  "sha256": "37e1a1848aa25cd49cd3249be0c2ae57ee629d88a1bcf807594235442dc323c3",
+  "version": "1.37.47",
+  "releaseDate": "2026-05-19",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.47.html",
+  "size": 2745651,
+  "sha256": "4dc3b7740225c2bab035079078404f0c1a285c10ba3ce59583c52937388f1ff1",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "📋 89 POINTS DE CONTRÔLE OCR — Référentiel complet ABGX intégré mot pour mot. Réparti sur 3 activités : RPTE Travailleurs exposés (41 points · Code travail R.4451), RPPE Patients & Assurance qualité (18 points · Code Santé R.1333), IRM Champs électromagnétiques (30 points · Code travail R.4453). Précédemment 34 synthétiques, maintenant 89 atomiques. Page accessible dans la nav après Cohérence.",
-    "🎚️ CRITICITÉ NUMÉRIQUE ABGX — Chaque point a une criticité 1-25 (badge couleur dans la liste) : 12 Très haute (rouge), 9 Haute (orange), 6 Moyenne (jaune), 3 Faible (bleu). Tri auto par criticité décroissante. Filtre dédié.",
-    "🗂️ NAVIGATION 3 TABS — Onglets visuels Toutes / RPTE / RPPE / IRM avec compteurs (Toutes 89 · RPTE 41 · RPPE 18 · IRM 30). Couleur par activité (bleu/vert/violet). Switch instantané.",
-    "🔍 TRIPLE FILTRE — Catégorie (40 sous-thèmes), État (OUI/NON/N/A/Non évalué), Criticité (12/9/6/3). Cumulables.",
-    "📊 KPIs RECALCULÉS PAR ACTIVITÉ — Quand un onglet activité est sélectionné, les KPIs (Conformité, Non conformes, Non évalués) sont restreints à cette activité. Compteur criticité ≥12 mis en évidence.",
-    "🎨 STRUCTURE HIÉRARCHIQUE — Section Activité (header gradient couleur) → Sous-section Catégorie → Points avec badge criticité. Vue rapide par criticité, navigation fluide.",
-    "🆚 ABGX VS PROTEKSCAN — Égalité structurelle 100% (89 points, mêmes libellés, mêmes catégories, mêmes criticités). En plus : KPIs auto, filtre cumul Criticité, navigation par tabs activité, hiérarchie visuelle. Code mort `renderOCR` qui existait dans le code mais n'était pas branché à la nav est désormais accessible.",
-    "✅ HÉRITAGE v1.37.36 : Vue Locaux/Salles complète, indispos planning, Observations/Affectation dates/Alertes granulaires sur appareils, EPI/EPC 16 types, Physique Médicale 5 sections."
+    "🔧 RETOUR CLIENT — Session 1 sur 2 : 5 bugs/améliorations corrigés. Session 2 (v1.37.48) suivra avec Évaluation individuelle R.4451-53, bouton attestation formation, local enrichi.",
+    "✅ BUG 1 — Service dans nouveau local : remplacé par un champ texte avec datalist (saisie libre OU choix dans suggestions). Plus de blocage si aucun service pré-configuré.",
+    "✅ BUG 3 — Rôles étendus : ajout IDE, IBODE, IADE (Infirmier(ère) Diplômé(e), Bloc Opératoire, Anesthésiste) + nouveau sélecteur 'Catégorie de classement' R.4451-57 (A / B / Non classé) sur la fiche formation.",
+    "✅ BUG 6 — Déconnexion : nouvelle fonction logoutApp() accessible depuis Centre d'aide → tile 🚪 'Se déconnecter' et palette ⌘K (tape 'logout' ou 'déconnexion'). Purge sessionStorage mais préserve les données.",
+    "✅ BUG 7 — Export Excel personnel + formations : 2 nouveaux exports XLS natifs (.xls) accessibles depuis Centre d'exports → catégorie RH. Format Excel direct (pas CSV) avec mise en forme : entêtes bleus + lignes alternées + watermark version. Personnel enrichi (catégorie classement + nb formations actives). Formations enrichies (rôle/catégorie/statut validité).",
+    "✅ BUG 8 — Import appareils accepte maintenant les fichiers avec colonne 'nom' uniquement (sans fabricant/modèle). Avant : silencieusement ignorés.",
+    "📋 REPORTÉ v1.37.48 — Bug 2 (dates import formations), Bug 4 (évaluation individuelle R.4451-53), Bug 5 (bouton attestation formation), Bug 9 (local enrichi avec appareils attribués + rapport technique + vérif initiale).",
+    "🔍 INVESTIGATION v1.37.48 — Bugs 10/11/12/13 : tests Playwright montrent que les pages render correctement et boutons sont bindés. Probable confusion entre 'page blanche' et 'état vide pas claire'. Améliorations à venir : meilleur empty-state visible."
   ]
 }
