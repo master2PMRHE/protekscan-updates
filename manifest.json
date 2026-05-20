@@ -1,19 +1,51 @@
 {
-  "version": "1.37.47",
-  "releaseDate": "2026-05-19",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.47.html",
-  "size": 2745651,
-  "sha256": "4dc3b7740225c2bab035079078404f0c1a285c10ba3ce59583c52937388f1ff1",
+  "version": "1.37.49",
+  "releaseDate": "2026-05-20",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.49.html",
+  "size": 2847027,
+  "sha256": "e482cc7c95c122560b78eb1fcce61a7b34044c9a7f3b49c0c4e7f372a3889c3d",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
-    "🔧 RETOUR CLIENT — Session 1 sur 2 : 5 bugs/améliorations corrigés. Session 2 (v1.37.48) suivra avec Évaluation individuelle R.4451-53, bouton attestation formation, local enrichi.",
-    "✅ BUG 1 — Service dans nouveau local : remplacé par un champ texte avec datalist (saisie libre OU choix dans suggestions). Plus de blocage si aucun service pré-configuré.",
-    "✅ BUG 3 — Rôles étendus : ajout IDE, IBODE, IADE (Infirmier(ère) Diplômé(e), Bloc Opératoire, Anesthésiste) + nouveau sélecteur 'Catégorie de classement' R.4451-57 (A / B / Non classé) sur la fiche formation.",
-    "✅ BUG 6 — Déconnexion : nouvelle fonction logoutApp() accessible depuis Centre d'aide → tile 🚪 'Se déconnecter' et palette ⌘K (tape 'logout' ou 'déconnexion'). Purge sessionStorage mais préserve les données.",
-    "✅ BUG 7 — Export Excel personnel + formations : 2 nouveaux exports XLS natifs (.xls) accessibles depuis Centre d'exports → catégorie RH. Format Excel direct (pas CSV) avec mise en forme : entêtes bleus + lignes alternées + watermark version. Personnel enrichi (catégorie classement + nb formations actives). Formations enrichies (rôle/catégorie/statut validité).",
-    "✅ BUG 8 — Import appareils accepte maintenant les fichiers avec colonne 'nom' uniquement (sans fabricant/modèle). Avant : silencieusement ignorés.",
-    "📋 REPORTÉ v1.37.48 — Bug 2 (dates import formations), Bug 4 (évaluation individuelle R.4451-53), Bug 5 (bouton attestation formation), Bug 9 (local enrichi avec appareils attribués + rapport technique + vérif initiale).",
-    "🔍 INVESTIGATION v1.37.48 — Bugs 10/11/12/13 : tests Playwright montrent que les pages render correctement et boutons sont bindés. Probable confusion entre 'page blanche' et 'état vide pas claire'. Améliorations à venir : meilleur empty-state visible."
+    {
+      "type": "feat",
+      "title": "Module Gestion des données — 8 onglets d'import unifiés (battre ABGX)",
+      "detail": "Nouvelle vue accessible via navigate('gestion_donnees'). 8 types d'import couvrent : Travailleurs, Contrats (nouveau), Visites médicales, Planifications V.M. (nouveau), Formations, Habilitations cert (séparé), Services/UF (nouveau), Affectation Évaluation Dosimétrique (nouveau). Chaque onglet : drag-drop + Mode test + bouton Importer + aide contextuelle (INFOS/ATTENTION/CONSEILS) + template CSV téléchargeable."
+    },
+    {
+      "type": "feat",
+      "title": "Mode test enrichi — dry-run avec rapport détaillé (différenciateur ABGX)",
+      "detail": "ABGX fait mode test binaire on/off sans détails. ProtekScan v1.37.49 simule l'import sans modifier le storage et produit un rapport avec : KPIs synthèse (créations / mises à jour / avertissements / erreurs) + diff ligne par ligne (sections dépliables) + rapport CSV téléchargeable. Validations spécifiques par type (chevauchement contrats, % hors plage 0-200, travailleur non trouvé, dates incohérentes, code UF dupliqué)."
+    },
+    {
+      "type": "feat",
+      "title": "Module Registre des travailleurs — vue agrégée centrale (battre ABGX)",
+      "detail": "Nouvelle vue navigate('registre_travailleurs'). Layout style ABGX : colonnes NOM Prénom (+ poste), Dosimétrie (avec barre %), Affectations UF, Catégorie d'exposition (NC/B/A colorisé), Contrat actif. 6 icônes statut par ligne (ⓘ info / 📄 contrat / 🩺 visite / 🎓 formation / 📡 eval dosi / ⚖ classement) cliquables. Filtres (recherche + catégorie + statut contrat), pagination 30/page, sélection multi-lignes, export CSV."
+    },
+    {
+      "type": "feat",
+      "title": "5 nouveaux storages localStorage",
+      "detail": "protekscan_contrats_trav (array), protekscan_planif_visites (array), protekscan_habilitations_cert (array), protekscan_eval_dosi (object par ID travailleur), protekscan_uf_locaux (étendu). Voir l'API IMPORT_MAPPINGS dans le code pour les schémas complets."
+    },
+    {
+      "type": "feat",
+      "title": "Eval dosi : import 'onlyUpdates' (spécificité ABGX)",
+      "detail": "L'import 'Affectation Évaluation Dosimétrique' NE CRÉE PAS de nouveau travailleur. Il met uniquement à jour les valeurs en % (hp10pct, hp007pct, hp3pct) + date d'évaluation + source pour les travailleurs existants. Les lignes orphelines sont ignorées avec un warning explicite dans le rapport."
+    },
+    {
+      "type": "feat",
+      "title": "Templates CSV téléchargeables par type",
+      "detail": "Chaque onglet expose un lien 'Utiliser le modèle d'import …' qui télécharge un CSV pré-formaté avec les headers reconnus automatiquement (UTF-8 + BOM)."
+    },
+    {
+      "type": "feat",
+      "title": "Détection auto des colonnes (multi-labels FR/EN)",
+      "detail": "Chaque champ d'IMPORT_MAPPINGS a une liste de labels reconnus (ex: dateNaissance accepte 'naissance', 'date naissance', 'birth', 'dob', 'né le'). L'auto-mapping s'effectue à l'ouverture du fichier sans intervention manuelle."
+    },
+    {
+      "type": "fix",
+      "title": "Sidebar : 2 entrées ajoutées (Registre travailleurs + Gestion des données)",
+      "detail": "Hook DOM tardif sur .sidebar/aside/#sidebar qui ajoute les 2 entrées de navigation après mount, sans casser l'existant. Compatible avec retry double pour DOM tardif."
+    }
   ]
 }
