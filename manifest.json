@@ -1,51 +1,61 @@
 {
-  "version": "1.38.0",
+  "version": "1.41.0",
   "releaseDate": "2026-05-20",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.38.0.html",
-  "size": 2919510,
-  "sha256": "93fb8d8fbd6407247d43239f390bdd88b3957b1c2d1369fe615046a2d860652a",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.41.0.html",
+  "size": 3102833,
+  "sha256": "21132929aea5b8267bfe56f4adaa23236fcbaaadd127cb19df3827141b4dbedd",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "feat",
-      "title": "Sessions de formation — planification présentielle complète (battre ABGX)",
-      "detail": "Nouvelle vue navigate('sessions_formation'). Registre filtré (recherche, statut, formation) + pagination 25/page. Modal CRUD complet : intitulé, code, type de formation (lié au modèle), date début/fin, durée + unité (heure/jour/demi-journée), avec examen, notifier admins, faite en interne, lieu, nom formateur, organisme, codes CEFRI/EDF/autre, nb personnes max, prix/personne + prix HT, commentaire participants, étiquettes, statut (planifiée/en cours/réalisée/annulée). Export CSV."
+      "title": "Module Statistiques complet — 4 sous-modules avec graphiques SVG natifs",
+      "detail": "navigate('statistiques'). 4 onglets : 📡 Radioprotection (toggles d'affichage 6 types dose : Hp(10) corps, Hp(0,07) peau, Hp(10)/Hp(0,07) poignet, Hp(0,07) bague, Hp(3) cristallin), ⚕ Médical (KPIs visites à jour/ce mois/expirées/travailleurs actifs), 🎓 Formations (par mois + par type, KPIs sessions/réalisées/obligatoires), 📈 Business Intelligence (export JSON complet pour Power BI). Graphiques SVG inline natifs (pas de dépendance externe, fonctionne offline)."
     },
     {
       "type": "feat",
-      "title": "E-learning — module dédié pour formations distancielles",
-      "detail": "Nouvelle vue navigate('elearning'). Registre des sessions e-learning avec décompte participants/validés. Modal : formation rattachée, description, dates ouverture/limite, durée estimée, URL contenu, validation auto (le participant est validé à 100% complétion + quiz). Statut calculé automatiquement selon date limite + nb validés."
+      "title": "Établissement / UF — vue dédiée plein-écran avec stats par UF",
+      "detail": "navigate('etablissement_uf'). Liste structurée avec colonnes ABGX : Libellé UF, Code, Travailleurs affectés (badge bleu compteur live), Pôle, Service, Catégorie, Site, Filiale, UF exposée (badge rouge ⚠ si zone contrôlée/surveillée). Modal CRUD complet : libellé, code, pôle, service, catégorie, site, filiale, responsables (multi), checkbox 'UF exposée'."
     },
     {
       "type": "feat",
-      "title": "Modèles de formation enrichis — relations + codes externes",
-      "detail": "Nouvelle vue navigate('modeles_formation'). Champs enrichis : abréviation, libellé, catégorie, durée validité (mois), formations incluses (multi-select), formation spécifique, formation sensibilisation, formations niveau supérieur (multi-select), habilitations liées (multi-select), obligatoire pour catégories (NC/B/A/PUBLIC), organisme, alerte expiration X jours, codes CEFRI/EDF, prix/personne + HT, étiquettes, actif/inactif. Recherche + export CSV."
+      "title": "Locaux — vue étendue avec charge de travail mA.min et conformité",
+      "detail": "navigate('locaux'). Liste enrichie avec : nom, identifiant unique, affectation UF (dropdown vers UF existantes), charge de travail mA.min/mois et mA.min/heure (calcul exposition), statut (Actif/Inactif), conformité (Conforme/Non conforme/Non définie avec code couleur), adresse, étiquettes. Modal CRUD complet 11 champs."
     },
     {
       "type": "feat",
-      "title": "Modèles d'habilitations enrichis — prise en compte calcul fin validité",
-      "detail": "Nouvelle vue navigate('modeles_habilitations'). Champs : abréviation, type (habilitation/autorisation/certification/qualification), libellé, durée validité (mois), catégories, domaine d'application (RP/Électrique/Levage/Hauteur/Chimique/Incendie/Autre). Prise en compte pour calcul fin validité : Formation RP / Visite Médicale / Électrique (si activé : la date de fin de validité tient compte du document associé)."
+      "title": "Contrôles des locaux (sous-module dédié)",
+      "detail": "navigate('locaux_controles'). Suivi des contrôles techniques rattachés à un local cible : type de contrôle, interne/externe, date contrôle, date validité, contrôleur. Modal CRUD avec dropdown vers locaux existants."
     },
     {
       "type": "feat",
-      "title": "4 nouvelles entrées sidebar + 4 nouvelles routes navigation",
-      "detail": "Sidebar étendue automatiquement avec : 📚 Sessions formation, 💻 E-learning, 🎓 Modèles formation, 🏅 Modèles habilitations. Hook nav différé (setTimeout triple-retry) qui couvre aussi les routes v1.37.49 (gestion_donnees, registre_travailleurs) — fix d'un bug d'ordre d'exécution non détecté précédemment."
+      "title": "Mon compte — 5 onglets configuration utilisateur",
+      "detail": "navigate('mon_compte'). 5 onglets : 🔍 Filtres globaux (Modules, UF, Service, Pôles, Sites, Filiales — restreint l'affichage), 📅 Agenda (sync Google + Outlook + iCal avec toggles + warning de permissions), 🎨 Apparence (renvoi vers menu thème), 🔒 Sécurité (info offline-first + recommandation sauvegarde JSON), ❓ Aide (lien help.protekscan.fr + récap versions modules)."
     },
     {
       "type": "feat",
-      "title": "2 nouveaux schémas d'import (sessions formation + e-learning)",
-      "detail": "Les types 'sessions_formation' et 'elearning_sessions' sont ajoutés à IMPORT_MAPPINGS avec auto-détection de colonnes (CEFRI/EDF/dates/intitulés). Utilisables via l'API _dryRunImport et l'engine d'import existant. L'intégration dans les onglets visibles de Gestion des données est prévue en v1.38.1."
+      "title": "Paramètres d'affichage statistiques configurables",
+      "detail": "Modal Paramètres dans Statistiques : 6 toggles pour activer/désactiver chaque type de dose dans les graphiques (Hp(10) corps, Hp(0,07) peau, Hp(10)/Hp(0,07) poignet, Hp(0,07) bague, Hp(3) cristallin). Préférences sauvegardées dans protekscan_user_settings."
     },
     {
       "type": "feat",
-      "title": "4 nouveaux storages localStorage",
-      "detail": "protekscan_sessions_formation (array), protekscan_elearning_sessions (array), protekscan_formations_modeles (array, modèles enrichis), protekscan_habilitations_modeles (array, modèles enrichis). Schémas documentés dans le code source du module v1.38.0."
+      "title": "Export Business Intelligence — archive JSON tout-en-un",
+      "detail": "Bouton 'Générer mes statistiques 🚀' dans Statistiques > BI : export JSON de TOUS les storages ProtekScan (travailleurs, dosimétrie, formations, qualité, locaux, UF, contrôles, plans d'action, GED métadonnées). Compatible Power BI Desktop / Excel / autres outils BI. Inclut métadonnées version + date export."
     },
     {
-      "type": "fix",
-      "title": "Correction du hook navigation v1.37.49",
-      "detail": "Le hook nav v1.37.49 s'exécutait avant que window.navigate soit défini par les hooks tardifs du code original (lignes 41497, 41877). Le wrap v138 différé corrige aussi les routes anciennes (gestion_donnees, registre_travailleurs) qui étaient potentiellement non-fonctionnelles selon le contexte."
+      "type": "feat",
+      "title": "Graphiques SVG natifs offline-compatible",
+      "detail": "Helper _v141_barChart() : graphiques en barres verticales/empilées avec axes Y graduées (5 ticks), labels X, hover tooltips natifs. Pas de dépendance chart.js/recharts. Export SVG cliquable depuis chaque graphique. Calcul automatique des valeurs max et échelles."
+    },
+    {
+      "type": "feat",
+      "title": "4 nouvelles entrées sidebar + 5 nouvelles routes",
+      "detail": "Sidebar : 📊 Statistiques, 🏢 Établissement / UF, 🚪 Locaux, ⚙ Mon compte. Routes : statistiques, etablissement_uf, locaux, locaux_controles, mon_compte. Hook nav différé (triple-retry setTimeout) cohabite avec v1.37.49, v1.38.0, v1.39.0, v1.40.0 sans régression."
+    },
+    {
+      "type": "feat",
+      "title": "1 nouveau storage + extension protekscan_uf_locaux",
+      "detail": "protekscan_user_settings (préférences globales : filtres, agenda, statsDisplay). Extension de protekscan_uf_locaux (v1.37.49) avec champs Locaux étendus : adresse, chargeTravailMois, chargeTravailHeure, conformite, statut. Nouveau storage protekscan_locaux_controles."
     }
   ]
 }
