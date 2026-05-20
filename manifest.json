@@ -1,51 +1,51 @@
 {
-  "version": "1.37.49",
+  "version": "1.38.0",
   "releaseDate": "2026-05-20",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.37.49.html",
-  "size": 2847027,
-  "sha256": "e482cc7c95c122560b78eb1fcce61a7b34044c9a7f3b49c0c4e7f372a3889c3d",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.38.0.html",
+  "size": 2919510,
+  "sha256": "93fb8d8fbd6407247d43239f390bdd88b3957b1c2d1369fe615046a2d860652a",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "feat",
-      "title": "Module Gestion des données — 8 onglets d'import unifiés (battre ABGX)",
-      "detail": "Nouvelle vue accessible via navigate('gestion_donnees'). 8 types d'import couvrent : Travailleurs, Contrats (nouveau), Visites médicales, Planifications V.M. (nouveau), Formations, Habilitations cert (séparé), Services/UF (nouveau), Affectation Évaluation Dosimétrique (nouveau). Chaque onglet : drag-drop + Mode test + bouton Importer + aide contextuelle (INFOS/ATTENTION/CONSEILS) + template CSV téléchargeable."
+      "title": "Sessions de formation — planification présentielle complète (battre ABGX)",
+      "detail": "Nouvelle vue navigate('sessions_formation'). Registre filtré (recherche, statut, formation) + pagination 25/page. Modal CRUD complet : intitulé, code, type de formation (lié au modèle), date début/fin, durée + unité (heure/jour/demi-journée), avec examen, notifier admins, faite en interne, lieu, nom formateur, organisme, codes CEFRI/EDF/autre, nb personnes max, prix/personne + prix HT, commentaire participants, étiquettes, statut (planifiée/en cours/réalisée/annulée). Export CSV."
     },
     {
       "type": "feat",
-      "title": "Mode test enrichi — dry-run avec rapport détaillé (différenciateur ABGX)",
-      "detail": "ABGX fait mode test binaire on/off sans détails. ProtekScan v1.37.49 simule l'import sans modifier le storage et produit un rapport avec : KPIs synthèse (créations / mises à jour / avertissements / erreurs) + diff ligne par ligne (sections dépliables) + rapport CSV téléchargeable. Validations spécifiques par type (chevauchement contrats, % hors plage 0-200, travailleur non trouvé, dates incohérentes, code UF dupliqué)."
+      "title": "E-learning — module dédié pour formations distancielles",
+      "detail": "Nouvelle vue navigate('elearning'). Registre des sessions e-learning avec décompte participants/validés. Modal : formation rattachée, description, dates ouverture/limite, durée estimée, URL contenu, validation auto (le participant est validé à 100% complétion + quiz). Statut calculé automatiquement selon date limite + nb validés."
     },
     {
       "type": "feat",
-      "title": "Module Registre des travailleurs — vue agrégée centrale (battre ABGX)",
-      "detail": "Nouvelle vue navigate('registre_travailleurs'). Layout style ABGX : colonnes NOM Prénom (+ poste), Dosimétrie (avec barre %), Affectations UF, Catégorie d'exposition (NC/B/A colorisé), Contrat actif. 6 icônes statut par ligne (ⓘ info / 📄 contrat / 🩺 visite / 🎓 formation / 📡 eval dosi / ⚖ classement) cliquables. Filtres (recherche + catégorie + statut contrat), pagination 30/page, sélection multi-lignes, export CSV."
+      "title": "Modèles de formation enrichis — relations + codes externes",
+      "detail": "Nouvelle vue navigate('modeles_formation'). Champs enrichis : abréviation, libellé, catégorie, durée validité (mois), formations incluses (multi-select), formation spécifique, formation sensibilisation, formations niveau supérieur (multi-select), habilitations liées (multi-select), obligatoire pour catégories (NC/B/A/PUBLIC), organisme, alerte expiration X jours, codes CEFRI/EDF, prix/personne + HT, étiquettes, actif/inactif. Recherche + export CSV."
     },
     {
       "type": "feat",
-      "title": "5 nouveaux storages localStorage",
-      "detail": "protekscan_contrats_trav (array), protekscan_planif_visites (array), protekscan_habilitations_cert (array), protekscan_eval_dosi (object par ID travailleur), protekscan_uf_locaux (étendu). Voir l'API IMPORT_MAPPINGS dans le code pour les schémas complets."
+      "title": "Modèles d'habilitations enrichis — prise en compte calcul fin validité",
+      "detail": "Nouvelle vue navigate('modeles_habilitations'). Champs : abréviation, type (habilitation/autorisation/certification/qualification), libellé, durée validité (mois), catégories, domaine d'application (RP/Électrique/Levage/Hauteur/Chimique/Incendie/Autre). Prise en compte pour calcul fin validité : Formation RP / Visite Médicale / Électrique (si activé : la date de fin de validité tient compte du document associé)."
     },
     {
       "type": "feat",
-      "title": "Eval dosi : import 'onlyUpdates' (spécificité ABGX)",
-      "detail": "L'import 'Affectation Évaluation Dosimétrique' NE CRÉE PAS de nouveau travailleur. Il met uniquement à jour les valeurs en % (hp10pct, hp007pct, hp3pct) + date d'évaluation + source pour les travailleurs existants. Les lignes orphelines sont ignorées avec un warning explicite dans le rapport."
+      "title": "4 nouvelles entrées sidebar + 4 nouvelles routes navigation",
+      "detail": "Sidebar étendue automatiquement avec : 📚 Sessions formation, 💻 E-learning, 🎓 Modèles formation, 🏅 Modèles habilitations. Hook nav différé (setTimeout triple-retry) qui couvre aussi les routes v1.37.49 (gestion_donnees, registre_travailleurs) — fix d'un bug d'ordre d'exécution non détecté précédemment."
     },
     {
       "type": "feat",
-      "title": "Templates CSV téléchargeables par type",
-      "detail": "Chaque onglet expose un lien 'Utiliser le modèle d'import …' qui télécharge un CSV pré-formaté avec les headers reconnus automatiquement (UTF-8 + BOM)."
+      "title": "2 nouveaux schémas d'import (sessions formation + e-learning)",
+      "detail": "Les types 'sessions_formation' et 'elearning_sessions' sont ajoutés à IMPORT_MAPPINGS avec auto-détection de colonnes (CEFRI/EDF/dates/intitulés). Utilisables via l'API _dryRunImport et l'engine d'import existant. L'intégration dans les onglets visibles de Gestion des données est prévue en v1.38.1."
     },
     {
       "type": "feat",
-      "title": "Détection auto des colonnes (multi-labels FR/EN)",
-      "detail": "Chaque champ d'IMPORT_MAPPINGS a une liste de labels reconnus (ex: dateNaissance accepte 'naissance', 'date naissance', 'birth', 'dob', 'né le'). L'auto-mapping s'effectue à l'ouverture du fichier sans intervention manuelle."
+      "title": "4 nouveaux storages localStorage",
+      "detail": "protekscan_sessions_formation (array), protekscan_elearning_sessions (array), protekscan_formations_modeles (array, modèles enrichis), protekscan_habilitations_modeles (array, modèles enrichis). Schémas documentés dans le code source du module v1.38.0."
     },
     {
       "type": "fix",
-      "title": "Sidebar : 2 entrées ajoutées (Registre travailleurs + Gestion des données)",
-      "detail": "Hook DOM tardif sur .sidebar/aside/#sidebar qui ajoute les 2 entrées de navigation après mount, sans casser l'existant. Compatible avec retry double pour DOM tardif."
+      "title": "Correction du hook navigation v1.37.49",
+      "detail": "Le hook nav v1.37.49 s'exécutait avant que window.navigate soit défini par les hooks tardifs du code original (lignes 41497, 41877). Le wrap v138 différé corrige aussi les routes anciennes (gestion_donnees, registre_travailleurs) qui étaient potentiellement non-fonctionnelles selon le contexte."
     }
   ]
 }
