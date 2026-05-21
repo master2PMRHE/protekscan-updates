@@ -1,61 +1,56 @@
 {
-  "version": "1.44.0",
+  "version": "1.45.0",
   "releaseDate": "2026-05-21",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.44.0.html",
-  "size": 3208324,
-  "sha256": "58004e6ceccf1272aed2b2aea2fa24784123349747dada91fd58e46a864bfe0e",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.45.0.html",
+  "size": 3257515,
+  "sha256": "f25bec9e41b40c7a41eeee56eefadbd2a919722b0b08ddcf7cabeab027d955f7",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "feat",
-      "title": "Profils utilisateurs avec rôles (PCR / médecin nucléaire / manip chef / manip / admin)",
-      "detail": "Sélecteur de profil au démarrage. Création de profil avec nom, rôle, email optionnel. 5 rôles standards : PCR (accès complet ☢), Médecin nucléaire (dosimétrie + qualité + plans ⚕), Manipulateur chef (registre + formations + locaux 👨‍⚕), Manipulateur (lecture seule 👤), Administrateur (tout + gestion profils 🔧). Storage : protekscan_profils (liste) + protekscan_session_active (session courante)."
+      "title": "Vue détail Session de formation avec gestion participants",
+      "detail": "navigate('session_detail|<sessionId>'). Bouton 👥 ajouté dans la liste des sessions ouvre la vue détail. KPIs participants (inscrits/présents/validés/absents) en haut. Tableau complet des participants avec nom, matricule, service, statut colorisé. Boutons rapides pour changer le statut (📝 Inscrit / ✓ Présent / ✗ Absent / ⊘ Excusé / 🏅 Validé)."
     },
     {
       "type": "feat",
-      "title": "Avatar dans sidebar avec switch profil",
-      "detail": "Bloc avatar en haut de la sidebar affichant initiales (couleur par rôle), nom complet, rôle. Clic = ouvre le sélecteur pour switcher de profil sans perdre les données. Inséré automatiquement par window._v144_renderAvatar()."
+      "title": "Ajout multi-participants depuis le registre avec recherche",
+      "detail": "Modal '+ Ajouter depuis registre' qui liste tous les travailleurs non encore inscrits. Recherche en temps réel (nom/matricule/service). Sélection multiple avec checkbox + 'Tout sélectionner'. Compteur de sélection en direct. Ajout en lot d'un coup."
     },
     {
       "type": "feat",
-      "title": "Filtrage automatique des modules selon le rôle",
-      "detail": "Les modules non autorisés pour le rôle courant sont CACHÉS dans la sidebar groupée (v1.42). Exemple : un manipulateur ne voit que Dashboard + Mon compte. Un médecin nucléaire ne voit pas le registre travailleurs étendu. Un PCR voit tout. Les sections vides sont également cachées."
+      "title": "Feuille de présence A4 imprimable",
+      "detail": "Bouton 📄 'Feuille de présence' génère un document A4 prêt à imprimer/signer. En-tête avec toutes les infos session (intitulé/code/type/lieu/date/formateur/organisme/durée), tableau participants pré-rempli (nom/prénom/matricule/service/statut) avec colonne signature physique. 25 lignes max + lignes vierges pour ajouts manuels. Blocs signature formateur + PCR en bas. Référence art. R.4451-58 CT."
     },
     {
       "type": "feat",
-      "title": "Journal d'audit RGPD automatique",
-      "detail": "Wrap transparent de localStorage.setItem et localStorage.removeItem qui intercepte TOUTES les écritures sur protekscan_*. Pour chaque modification : timestamp, profil acteur, action (create/update/delete), storage cible, diff (added/modified/removed). Stocké en IndexedDB dédiée 'protekscan_audit' (pas de pollution du localStorage principal)."
+      "title": "Génération attestations en lot",
+      "detail": "Bouton 🏅 'Attestations (N)' génère un document multi-pages avec une attestation par participant validé. Format A4 paysage avec en-tête établissement, nom du participant en grand encadré, détails formation (date/durée/formateur/organisme), date d'expiration calculée automatiquement (3 ans par défaut selon modèle), signatures. Le compteur (N) montre combien de validés."
     },
     {
       "type": "feat",
-      "title": "Calcul de diff précis (added/modified/removed)",
-      "detail": "Pour les arrays d'objets avec id : compare l'ancien et le nouveau état, identifie ce qui a été ajouté (nouveaux ids), modifié (même id, contenu différent), supprimé (id manquant). Affiche dans le journal sous forme '+2 / ~1 / -3' pour les arrays. Pour les autres types, log un 'replace' générique."
+      "title": "MAJ automatique de l'historique formation du travailleur",
+      "detail": "Quand un participant est marqué 'Validé', l'historique formation du travailleur est automatiquement mis à jour : entrée ajoutée dans t.formations[] avec sessionId, intitulé, type, date réalisation/validation, formateur, organisme. Évite la double saisie et garantit la cohérence registre ↔ sessions."
     },
     {
       "type": "feat",
-      "title": "Vue Journal d'audit RGPD avec filtres",
-      "detail": "navigate('audit_log'). Tableau filtrable par profil, action (create/update/delete), storage. Affiche timestamp, profil avec icône de rôle, action colorisée (vert/orange/rouge), storage cible, diff résumé. Auto-tronqué à 500 lignes (affiner les filtres pour le reste). Stick-header pour scroll."
+      "title": "4 Templates POPM spécialisés par modalité",
+      "detail": "Modal de sélection avant génération POPM avec 5 options : POPM générique (v1.43) + 4 spécialisés. Scanner 🩻 : NRD, optimisation dose patient, CTDIvol/DLP, CQ scanner annuel. IRM 🧲 : risques champ magnétique B0, sécurité ferromagnétique, suivi SAR. Médecine nucléaire ☢ : gestion radiopharmaceutiques, décroissance/effluents, salle d'injection, protection aidants. Radiothérapie 🎯 : dosimétrie clinique RCMI/IGRT/SBRT, PAQ, double calcul dose, gestion DEPI."
     },
     {
       "type": "feat",
-      "title": "Export CSV du journal d'audit",
-      "detail": "Bouton 📥 Export CSV dans la vue Audit log. Format UTF-8 BOM séparateur ';', colonnes TIMESTAMP, PROFIL, ROLE, ACTION, STORAGE, DETAILS. Téléchargement direct. Utile pour archivage légal RGPD ou contrôle DPO."
+      "title": "Chaque template POPM contient ses sections obligatoires distinctes",
+      "detail": "Le template scanner mentionne R.1333-58 CSP + arrêté 8 février 2019 radiologie interventionnelle. IRM : décret 2016-1074 CEM. Médecine nucléaire : R.1333 + INB. Radiothérapie : R.1333 + critères INCa/ASN. Sections spécifiques pré-formatées avec zones de saisie à compléter par la PCR/physicien médical."
     },
     {
       "type": "feat",
-      "title": "Purge des anciens événements (3 ans)",
-      "detail": "Bouton 🗑 Purger anciens dans la vue Audit log. Supprime les événements de plus de 3 ans (durée recommandée RGPD pour les journaux d'audit, conformément à l'art. 30 RGPD - registre des activités de traitement). Confirmation requise, action irréversible."
+      "title": "Vue détail E-learning + suivi progression par participant",
+      "detail": "navigate('elearning_detail|<id>'). Bouton 👥 dans la liste e-learning. 4 statuts par participant : 📝 À faire / ⏳ En cours / ✓ Terminé / 🏅 Validé (score ≥80%). Le passage à 'Validé' demande le score (%) en input et déclenche la MAJ historique formation. Bouton 🎓 'Lancer le quiz' qui ouvre le quiz métier 25 QCM existant."
     },
     {
       "type": "feat",
-      "title": "Vue Gestion des profils",
-      "detail": "navigate('gestion_profils'). Visible uniquement PCR/admin. Liste tous les profils avec avatar coloré, nom, rôle, email, date création, dernière connexion. Actions : Se connecter (switch), Modifier ✎, Supprimer 🗑. Le profil actif est mis en évidence avec '(vous)'."
-    },
-    {
-      "type": "tech",
-      "title": "IndexedDB dédiée pour l'audit (database protekscan_audit)",
-      "detail": "DB séparée de la principale (protekscan) pour : (1) isoler les logs des données métier, (2) permettre une purge indépendante, (3) éviter les conflits de version IDB lors de futures évolutions. Initialisée immédiatement au chargement (avant le wrap localStorage), donc tous les events sont capturés y compris ceux des modules existants."
+      "title": "Réutilisation intelligente : pas de doublon vs modules existants",
+      "detail": "Avant ce module, vérification que les calculatrices RP (renderCalculateurs route 'calculateurs'), le zonage automatique (renderZones route 'zones'), l'export SISERI complet (CSV par année/mois), le quiz e-learning standalone (25 QCM avec score), l'attestation PCR/formation, et le manifest PWA existaient déjà → non recodés. Seules les 3 lacunes confirmées comblées."
     }
   ]
 }
