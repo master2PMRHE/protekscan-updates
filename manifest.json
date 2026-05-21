@@ -1,56 +1,61 @@
 {
-  "version": "1.43.0",
-  "releaseDate": "2026-05-20",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.43.0.html",
-  "size": 3175236,
-  "sha256": "0a9c96ff43f8f8031378efaa6da8ebf8a10e04ecd445412aca776c66d1289f47",
+  "version": "1.44.0",
+  "releaseDate": "2026-05-21",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.44.0.html",
+  "size": 3208324,
+  "sha256": "58004e6ceccf1272aed2b2aea2fa24784123349747dada91fd58e46a864bfe0e",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "feat",
-      "title": "Moteur de détection automatique des non-conformités (UNIQUE vs ABGX)",
-      "detail": "Scan permanent et automatique de TOUTES les données saisies. Détecte 9 types de NC : DOSE_DEPASSEMENT (cat A >20 mSv/12m, cat B >6 mSv/12m), DOSE_APPROCHE (>80% du seuil), FORMATION_EXPIREE (>3 ans), FORMATION_EXPIRE_BIENTOT (<90j), DOSIMETRE_NON_LU (3+ mois), HABILITATION_EXPIREE/_EXPIRE_BIENTOT, DOCUMENT_EXPIRE, VISITE_MEDICALE_EXPIREE. Calcule un score de conformité 0-100 (10pts par critique, 3pts par warning)."
+      "title": "Profils utilisateurs avec rôles (PCR / médecin nucléaire / manip chef / manip / admin)",
+      "detail": "Sélecteur de profil au démarrage. Création de profil avec nom, rôle, email optionnel. 5 rôles standards : PCR (accès complet ☢), Médecin nucléaire (dosimétrie + qualité + plans ⚕), Manipulateur chef (registre + formations + locaux 👨‍⚕), Manipulateur (lecture seule 👤), Administrateur (tout + gestion profils 🔧). Storage : protekscan_profils (liste) + protekscan_session_active (session courante)."
     },
     {
       "type": "feat",
-      "title": "Création de plan d'action en 1 clic depuis une NC détectée",
-      "detail": "Sur la vue 'Alertes intelligentes', chaque NC critique/warning avec template CAPA associé propose un bouton '+ Plan d'action'. Le plan créé est pré-rempli : libellé [Auto], dates début/échéance (60j), commentaire avec contexte de la NC, comptes assignés (PCR), étiquettes (auto + type). Champ sourceNC tracé pour audit."
+      "title": "Avatar dans sidebar avec switch profil",
+      "detail": "Bloc avatar en haut de la sidebar affichant initiales (couleur par rôle), nom complet, rôle. Clic = ouvre le sélecteur pour switcher de profil sans perdre les données. Inséré automatiquement par window._v144_renderAvatar()."
     },
     {
       "type": "feat",
-      "title": "Calcul automatique fin de validité habilitation (priseEnCompte)",
-      "detail": "Helper window._v143_calcHabilitationExpiry(hab, travailleurId) qui calcule la date d'expiration effective d'une habilitation selon la priseEnCompte du modèle (formationRP / visiteMedicale / electrique). L'habilitation expire à la PLUS PROCHE des dates dépendantes (la première qui expire fait tout expirer). Renouvellement formation RP : 36 mois. Visite médicale : 24 mois."
+      "title": "Filtrage automatique des modules selon le rôle",
+      "detail": "Les modules non autorisés pour le rôle courant sont CACHÉS dans la sidebar groupée (v1.42). Exemple : un manipulateur ne voit que Dashboard + Mon compte. Un médecin nucléaire ne voit pas le registre travailleurs étendu. Un PCR voit tout. Les sections vides sont également cachées."
     },
     {
       "type": "feat",
-      "title": "Vue Alertes intelligentes — registre des NC avec actions",
-      "detail": "navigate('alertes_intelligentes'). KPIs (nb critiques, warnings, total), filtres par niveau et type, tableau trié critique d'abord. Pour chaque NC : badge niveau colorisé, icône type, cible cliquable, détails, bouton + Plan d'action et bouton Ignorer."
+      "title": "Journal d'audit RGPD automatique",
+      "detail": "Wrap transparent de localStorage.setItem et localStorage.removeItem qui intercepte TOUTES les écritures sur protekscan_*. Pour chaque modification : timestamp, profil acteur, action (create/update/delete), storage cible, diff (added/modified/removed). Stocké en IndexedDB dédiée 'protekscan_audit' (pas de pollution du localStorage principal)."
     },
     {
       "type": "feat",
-      "title": "Génération POPM automatique (Plan d'Organisation Physique Médicale)",
-      "detail": "Bouton 'Générer POPM' depuis Dashboard Conformité. Génère un document HTML A4 imprimable (Ctrl+P → PDF) avec : Présentation établissement, UF exposées, KPIs personnel (cat A/B/exposés), Formation RP, Dosimétrie (cumul/moyenne/max Hp(10)), Plans d'action en cours, blocs signature PCR + Médecin nucléaire. Conforme art. R.1333-58 à R.1333-71 CSP."
+      "title": "Calcul de diff précis (added/modified/removed)",
+      "detail": "Pour les arrays d'objets avec id : compare l'ancien et le nouveau état, identifie ce qui a été ajouté (nouveaux ids), modifié (même id, contenu différent), supprimé (id manquant). Affiche dans le journal sous forme '+2 / ~1 / -3' pour les arrays. Pour les autres types, log un 'replace' générique."
     },
     {
       "type": "feat",
-      "title": "Rapport ASN/HAS annuel automatique",
-      "detail": "Bouton 'Rapport ASN/HAS' depuis Dashboard Conformité. Génère un document HTML A4 imprimable avec : KPIs annuels (travailleurs exposés, mesures dosi, formations, NC), bilan dosimétrique par catégorie (cumul, max, dépassements), formations radioprotection, plans d'action (ouverts, clôturés, taux clôture, en retard), tableau exhaustif des NC actuelles. Référentiel ASN-RP n°34 et HAS critère IQSS."
+      "title": "Vue Journal d'audit RGPD avec filtres",
+      "detail": "navigate('audit_log'). Tableau filtrable par profil, action (create/update/delete), storage. Affiche timestamp, profil avec icône de rôle, action colorisée (vert/orange/rouge), storage cible, diff résumé. Auto-tronqué à 500 lignes (affiner les filtres pour le reste). Stick-header pour scroll."
     },
     {
       "type": "feat",
-      "title": "Dashboard Conformité — vue agrégée temps réel",
-      "detail": "navigate('dashboard_conformite'). Score de conformité SVG circulaire colorisé (vert >=90, orange >=70, rouge <70). 4 KPIs (critiques, warnings, plans clôturés, mesures dosi). Répartition des NC par type (barres colorisées par niveau). 3 boutons actions rapides : Voir alertes / Générer POPM / Rapport ASN. UNIQUE vs ABGX qui n'a pas de tableau de bord conformité agrégé."
+      "title": "Export CSV du journal d'audit",
+      "detail": "Bouton 📥 Export CSV dans la vue Audit log. Format UTF-8 BOM séparateur ';', colonnes TIMESTAMP, PROFIL, ROLE, ACTION, STORAGE, DETAILS. Téléchargement direct. Utile pour archivage légal RGPD ou contrôle DPO."
     },
     {
       "type": "feat",
-      "title": "2 nouvelles routes intégrées au router central v1.42",
-      "detail": "alertes_intelligentes et dashboard_conformite enregistrées via window._PS_registerRoute(). Apparaissent automatiquement dans la section 📊 'Vue d'ensemble' de la sidebar groupée v1.42. Fallback sidebar legacy si v1.42 pas encore actif."
+      "title": "Purge des anciens événements (3 ans)",
+      "detail": "Bouton 🗑 Purger anciens dans la vue Audit log. Supprime les événements de plus de 3 ans (durée recommandée RGPD pour les journaux d'audit, conformément à l'art. 30 RGPD - registre des activités de traitement). Confirmation requise, action irréversible."
     },
     {
       "type": "feat",
-      "title": "Pas de nouveau storage — tout est calculé",
-      "detail": "Le moteur de détection lit TOUS les storages existants (travailleurs, dosimétrie, formations, habilitations, qualité, visites) sans rien créer de nouveau. Performance : scan d'environ 0.1s sur des datasets typiques. Recalcul à chaque ouverture des vues Alertes/Dashboard."
+      "title": "Vue Gestion des profils",
+      "detail": "navigate('gestion_profils'). Visible uniquement PCR/admin. Liste tous les profils avec avatar coloré, nom, rôle, email, date création, dernière connexion. Actions : Se connecter (switch), Modifier ✎, Supprimer 🗑. Le profil actif est mis en évidence avec '(vous)'."
+    },
+    {
+      "type": "tech",
+      "title": "IndexedDB dédiée pour l'audit (database protekscan_audit)",
+      "detail": "DB séparée de la principale (protekscan) pour : (1) isoler les logs des données métier, (2) permettre une purge indépendante, (3) éviter les conflits de version IDB lors de futures évolutions. Initialisée immédiatement au chargement (avant le wrap localStorage), donc tous les events sont capturés y compris ceux des modules existants."
     }
   ]
 }
