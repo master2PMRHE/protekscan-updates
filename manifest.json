@@ -1,61 +1,56 @@
 {
-  "version": "1.41.0",
+  "version": "1.43.0",
   "releaseDate": "2026-05-20",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.41.0.html",
-  "size": 3102833,
-  "sha256": "21132929aea5b8267bfe56f4adaa23236fcbaaadd127cb19df3827141b4dbedd",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.43.0.html",
+  "size": 3175236,
+  "sha256": "0a9c96ff43f8f8031378efaa6da8ebf8a10e04ecd445412aca776c66d1289f47",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "feat",
-      "title": "Module Statistiques complet — 4 sous-modules avec graphiques SVG natifs",
-      "detail": "navigate('statistiques'). 4 onglets : 📡 Radioprotection (toggles d'affichage 6 types dose : Hp(10) corps, Hp(0,07) peau, Hp(10)/Hp(0,07) poignet, Hp(0,07) bague, Hp(3) cristallin), ⚕ Médical (KPIs visites à jour/ce mois/expirées/travailleurs actifs), 🎓 Formations (par mois + par type, KPIs sessions/réalisées/obligatoires), 📈 Business Intelligence (export JSON complet pour Power BI). Graphiques SVG inline natifs (pas de dépendance externe, fonctionne offline)."
+      "title": "Moteur de détection automatique des non-conformités (UNIQUE vs ABGX)",
+      "detail": "Scan permanent et automatique de TOUTES les données saisies. Détecte 9 types de NC : DOSE_DEPASSEMENT (cat A >20 mSv/12m, cat B >6 mSv/12m), DOSE_APPROCHE (>80% du seuil), FORMATION_EXPIREE (>3 ans), FORMATION_EXPIRE_BIENTOT (<90j), DOSIMETRE_NON_LU (3+ mois), HABILITATION_EXPIREE/_EXPIRE_BIENTOT, DOCUMENT_EXPIRE, VISITE_MEDICALE_EXPIREE. Calcule un score de conformité 0-100 (10pts par critique, 3pts par warning)."
     },
     {
       "type": "feat",
-      "title": "Établissement / UF — vue dédiée plein-écran avec stats par UF",
-      "detail": "navigate('etablissement_uf'). Liste structurée avec colonnes ABGX : Libellé UF, Code, Travailleurs affectés (badge bleu compteur live), Pôle, Service, Catégorie, Site, Filiale, UF exposée (badge rouge ⚠ si zone contrôlée/surveillée). Modal CRUD complet : libellé, code, pôle, service, catégorie, site, filiale, responsables (multi), checkbox 'UF exposée'."
+      "title": "Création de plan d'action en 1 clic depuis une NC détectée",
+      "detail": "Sur la vue 'Alertes intelligentes', chaque NC critique/warning avec template CAPA associé propose un bouton '+ Plan d'action'. Le plan créé est pré-rempli : libellé [Auto], dates début/échéance (60j), commentaire avec contexte de la NC, comptes assignés (PCR), étiquettes (auto + type). Champ sourceNC tracé pour audit."
     },
     {
       "type": "feat",
-      "title": "Locaux — vue étendue avec charge de travail mA.min et conformité",
-      "detail": "navigate('locaux'). Liste enrichie avec : nom, identifiant unique, affectation UF (dropdown vers UF existantes), charge de travail mA.min/mois et mA.min/heure (calcul exposition), statut (Actif/Inactif), conformité (Conforme/Non conforme/Non définie avec code couleur), adresse, étiquettes. Modal CRUD complet 11 champs."
+      "title": "Calcul automatique fin de validité habilitation (priseEnCompte)",
+      "detail": "Helper window._v143_calcHabilitationExpiry(hab, travailleurId) qui calcule la date d'expiration effective d'une habilitation selon la priseEnCompte du modèle (formationRP / visiteMedicale / electrique). L'habilitation expire à la PLUS PROCHE des dates dépendantes (la première qui expire fait tout expirer). Renouvellement formation RP : 36 mois. Visite médicale : 24 mois."
     },
     {
       "type": "feat",
-      "title": "Contrôles des locaux (sous-module dédié)",
-      "detail": "navigate('locaux_controles'). Suivi des contrôles techniques rattachés à un local cible : type de contrôle, interne/externe, date contrôle, date validité, contrôleur. Modal CRUD avec dropdown vers locaux existants."
+      "title": "Vue Alertes intelligentes — registre des NC avec actions",
+      "detail": "navigate('alertes_intelligentes'). KPIs (nb critiques, warnings, total), filtres par niveau et type, tableau trié critique d'abord. Pour chaque NC : badge niveau colorisé, icône type, cible cliquable, détails, bouton + Plan d'action et bouton Ignorer."
     },
     {
       "type": "feat",
-      "title": "Mon compte — 5 onglets configuration utilisateur",
-      "detail": "navigate('mon_compte'). 5 onglets : 🔍 Filtres globaux (Modules, UF, Service, Pôles, Sites, Filiales — restreint l'affichage), 📅 Agenda (sync Google + Outlook + iCal avec toggles + warning de permissions), 🎨 Apparence (renvoi vers menu thème), 🔒 Sécurité (info offline-first + recommandation sauvegarde JSON), ❓ Aide (lien help.protekscan.fr + récap versions modules)."
+      "title": "Génération POPM automatique (Plan d'Organisation Physique Médicale)",
+      "detail": "Bouton 'Générer POPM' depuis Dashboard Conformité. Génère un document HTML A4 imprimable (Ctrl+P → PDF) avec : Présentation établissement, UF exposées, KPIs personnel (cat A/B/exposés), Formation RP, Dosimétrie (cumul/moyenne/max Hp(10)), Plans d'action en cours, blocs signature PCR + Médecin nucléaire. Conforme art. R.1333-58 à R.1333-71 CSP."
     },
     {
       "type": "feat",
-      "title": "Paramètres d'affichage statistiques configurables",
-      "detail": "Modal Paramètres dans Statistiques : 6 toggles pour activer/désactiver chaque type de dose dans les graphiques (Hp(10) corps, Hp(0,07) peau, Hp(10)/Hp(0,07) poignet, Hp(0,07) bague, Hp(3) cristallin). Préférences sauvegardées dans protekscan_user_settings."
+      "title": "Rapport ASN/HAS annuel automatique",
+      "detail": "Bouton 'Rapport ASN/HAS' depuis Dashboard Conformité. Génère un document HTML A4 imprimable avec : KPIs annuels (travailleurs exposés, mesures dosi, formations, NC), bilan dosimétrique par catégorie (cumul, max, dépassements), formations radioprotection, plans d'action (ouverts, clôturés, taux clôture, en retard), tableau exhaustif des NC actuelles. Référentiel ASN-RP n°34 et HAS critère IQSS."
     },
     {
       "type": "feat",
-      "title": "Export Business Intelligence — archive JSON tout-en-un",
-      "detail": "Bouton 'Générer mes statistiques 🚀' dans Statistiques > BI : export JSON de TOUS les storages ProtekScan (travailleurs, dosimétrie, formations, qualité, locaux, UF, contrôles, plans d'action, GED métadonnées). Compatible Power BI Desktop / Excel / autres outils BI. Inclut métadonnées version + date export."
+      "title": "Dashboard Conformité — vue agrégée temps réel",
+      "detail": "navigate('dashboard_conformite'). Score de conformité SVG circulaire colorisé (vert >=90, orange >=70, rouge <70). 4 KPIs (critiques, warnings, plans clôturés, mesures dosi). Répartition des NC par type (barres colorisées par niveau). 3 boutons actions rapides : Voir alertes / Générer POPM / Rapport ASN. UNIQUE vs ABGX qui n'a pas de tableau de bord conformité agrégé."
     },
     {
       "type": "feat",
-      "title": "Graphiques SVG natifs offline-compatible",
-      "detail": "Helper _v141_barChart() : graphiques en barres verticales/empilées avec axes Y graduées (5 ticks), labels X, hover tooltips natifs. Pas de dépendance chart.js/recharts. Export SVG cliquable depuis chaque graphique. Calcul automatique des valeurs max et échelles."
+      "title": "2 nouvelles routes intégrées au router central v1.42",
+      "detail": "alertes_intelligentes et dashboard_conformite enregistrées via window._PS_registerRoute(). Apparaissent automatiquement dans la section 📊 'Vue d'ensemble' de la sidebar groupée v1.42. Fallback sidebar legacy si v1.42 pas encore actif."
     },
     {
       "type": "feat",
-      "title": "4 nouvelles entrées sidebar + 5 nouvelles routes",
-      "detail": "Sidebar : 📊 Statistiques, 🏢 Établissement / UF, 🚪 Locaux, ⚙ Mon compte. Routes : statistiques, etablissement_uf, locaux, locaux_controles, mon_compte. Hook nav différé (triple-retry setTimeout) cohabite avec v1.37.49, v1.38.0, v1.39.0, v1.40.0 sans régression."
-    },
-    {
-      "type": "feat",
-      "title": "1 nouveau storage + extension protekscan_uf_locaux",
-      "detail": "protekscan_user_settings (préférences globales : filtres, agenda, statsDisplay). Extension de protekscan_uf_locaux (v1.37.49) avec champs Locaux étendus : adresse, chargeTravailMois, chargeTravailHeure, conformite, statut. Nouveau storage protekscan_locaux_controles."
+      "title": "Pas de nouveau storage — tout est calculé",
+      "detail": "Le moteur de détection lit TOUS les storages existants (travailleurs, dosimétrie, formations, habilitations, qualité, visites) sans rien créer de nouveau. Performance : scan d'environ 0.1s sur des datasets typiques. Recalcul à chaque ouverture des vues Alertes/Dashboard."
     }
   ]
 }
