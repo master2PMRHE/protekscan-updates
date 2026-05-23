@@ -1,51 +1,41 @@
 {
-  "version": "1.47.7",
+  "version": "1.47.8",
   "releaseDate": "2026-05-23",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.47.7.html",
-  "size": 3432476,
-  "sha256": "bb05017fe23c852f67bab518f80ec185abdcfee7ebf95a8c07f4dd532e953531",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.47.8.html",
+  "size": 3451907,
+  "sha256": "cc69b3489de3a079b1aed2b3172b50f5a38d79790bc9a54a52de72257ef8d20a",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
-      "type": "fix",
-      "title": "🚨 ROLLBACK URGENT — sync destructrice de v1.47.2 supprimée",
-      "detail": "Diagnostic complet sur les 7 bugs critiques remontés par Catherine GROSJEAN. CAUSE RACINE : l'architecture utilise protekscan_user_v2 (clé CHIFFRÉE AES-GCM via PIN) comme SEULE source de vérité pour appareils/contrôles. protekscan_appareils en clair n'a jamais existé. v1.47.2 lisait cette clé vide puis faisait `appareils.length = 0; arr.forEach(push)` → ÉCRASAIT la globale chargée du chiffré. v1.47.7 supprime ce code destructif."
+      "type": "feat",
+      "title": "📚 Onglets Sessions de formation & E-learning dans Gestion des données",
+      "detail": "Extension IMPORT_MAPPINGS avec 2 nouveaux types : sessions_formation (📚) et elearning_sessions (💻). 10 fields pour sessions présentielles (intitulé, code, dates, lieu, durée, formateur, organisme, statut), 8 fields pour e-learning (intitulé, code, dates ouverture/fermeture, durée, lien plateforme, description, statut) — avec aliases pour matcher différents formats CSV. Onglets ajoutés dynamiquement via hook renderGestionDonnees (puisque _GD_TABS_ORDER est const non modifiable)."
     },
     {
       "type": "feat",
-      "title": "🔄 Bouton flottant 'Recharger appareils' (bas droit)",
-      "detail": "Bouton bleu flottant permanent qui appelle loadState() pour recharger appareils + contrôles depuis le storage chiffré protekscan_user_v2. Solution immédiate pour les cas où la globale a été vidée par l'ancien bug. Renderise ensuite la vue."
+      "title": "📂 Import structure GED — vraie implémentation (remplace toast 'à venir v1.40.1')",
+      "detail": "Modal complète accessible via le bouton 'Importer structure' de la Gestion documentaire (v1.40). 3 formats acceptés : (1) CSV séparateur ; ou , avec colonnes nom/parent/description/dateValidite/alertJours — détection auto ; (2) JSON avec tableau dossiers[] ; (3) Bouton ⭐ 'Structure standard PCR' pré-rempli avec 10 dossiers racines + 4 sous-dossiers POPM (Scanner/Méd. nucléaire/Radiothérapie/IRM)."
     },
     {
       "type": "feat",
-      "title": "⚠ Bandeau d'alerte au boot si données chiffrées mais inventaire vide",
-      "detail": "Si protekscan_user_v2 est présent mais appareils.length === 0, un bandeau rouge en haut de page : 'Données chiffrées détectées mais inventaire vide' avec bouton '🔄 Recharger maintenant'. Détection automatique du symptôme du bug."
+      "title": "Modèles téléchargeables CSV et JSON",
+      "detail": "Boutons 📄 'Modèle CSV' et 📄 'Modèle JSON' dans la modal d'import GED. Téléchargent un fichier exemple pré-rempli avec la structure attendue (3 racines + 3 enfants démo). Le client peut adapter facilement à sa structure."
     },
     {
       "type": "feat",
-      "title": "🆘 Backup v1.47.7 avec données déchiffrées",
-      "detail": "Nouveau bouton orange dans route import_restore : '🆘 Backup COMPLET v1.47.7'. Exporte TOUTES les clés protekscan_* (dont user_v2 chiffré) + EN PLUS appareils_clair et controles_clair en clair. Permet de transférer la base sur une autre instance avec un autre PIN sans perdre les données métier."
+      "title": "Preview live + statistiques avant import",
+      "detail": "Après sélection du fichier ou click preset, affichage automatique de l'arborescence (max 30 lignes avec indentation pour les enfants), statistiques 'N dossiers : X racine(s) + Y sous-dossier(s)'. Bouton 'Importer' désactivé tant qu'aucune donnée valide n'est chargée."
     },
     {
       "type": "feat",
-      "title": "📋 Diagnostic console détaillé au boot",
-      "detail": "À chaque démarrage, log automatique [v1.47.7] DIAGNOSTIC COMPLET : version, statut storage chiffré, _cryptoKey actif (PIN), nb appareils/contrôles en globale, présence des fonctions renderInventaire/Locaux/Planning/Zones/ExamensMensuels/Documents/openLocalModal. Permet à Catherine d'envoyer F12 → support pour diagnostic ciblé."
+      "title": "Création récursive avec résolution des parents par nom",
+      "detail": "2 passes d'import : (1) crée tous les dossiers racines (sans parent) et mémorise nom→ID ; (2) crée les enfants en résolvant leur parent depuis le nom. Génère des IDs uniques avec timestamp. Persiste dans protekscan_qualite_dossiers. Re-render automatique de la vue GED après import."
     },
     {
       "type": "feat",
-      "title": "Restauration intelligente du backup v1.47.7 avec decrypted_data",
-      "detail": "Si le backup contient decrypted_data (appareils_clair + controles_clair), l'import les pousse DIRECTEMENT dans la globale puis appelle saveState() qui re-chiffre avec le PIN actuel. Plus de dépendance au PIN d'origine du backup."
-    },
-    {
-      "type": "fix",
-      "title": "Bugs Locaux/Planning/Examens/Documents/Services : diagnostic requis",
-      "detail": "Ces 6 bugs ne sont PAS causés par mes patches (analyse confirmée : mes setInterval ne ciblent que des sélecteurs uniques [data-gd-act='backup'], [data-act='fexpo-f']). Ils sont préexistants dans le code original. Le diagnostic console v1.47.7 permettra d'identifier précisément ce qui plante chez Catherine et de cibler les fixes en v1.47.8."
-    },
-    {
-      "type": "fix",
-      "title": "Conservation des autres fixes v1.47.X",
-      "detail": "v1.47.3 capture phase listener (import OK), v1.47.4 nouvelle route import_restore, v1.47.5 dump dynamique export complet, v1.47.6 EIER conformité décret 2018-437. Tous toujours actifs et fonctionnels."
+      "title": "Preset 'Structure standard PCR' — 14 dossiers métier",
+      "detail": "Bouton ⭐ qui pré-remplit la structure recommandée pour une PCR d'établissement de santé : 01 Réglementation, 02 Procédures internes, 03 POPM (avec 4 sous-dossiers par modalité), 04 Formations, 05 Dosimétrie, 06 Contrôles, 07 Habilitations, 08 Incidents/ESR, 09 Audits & Inspections, 10 Prestataires. Conforme R.4451 et arborescence courante des établissements."
     }
   ]
 }
