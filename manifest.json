@@ -1,41 +1,51 @@
 {
-  "version": "1.47.6",
+  "version": "1.47.7",
   "releaseDate": "2026-05-23",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.47.6.html",
-  "size": 3415019,
-  "sha256": "469ad52957ed934fede5289bf295a907acd9f91c5e61c1b3be6b080e40ac44ec",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.47.7.html",
+  "size": 3432476,
+  "sha256": "bb05017fe23c852f67bab518f80ec185abdcfee7ebf95a8c07f4dd532e953531",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
       "type": "fix",
-      "title": "🏛 CONFORMITÉ — Fiche d'exposition remplacée par EIER (décret 2018-437)",
-      "detail": "La fiche d'exposition au poste de travail (ancienne R.4451-58) a été ABROGÉE par le décret n°2018-437 du 4 juin 2018 et remplacée par l'EIER (Évaluation Individuelle de l'Exposition aux RI), formalisée par les articles R.4451-52 (obligation préalable) et R.4451-53 (formalisme). La fonction _genererEvaluationIndividuelle conforme au document type ENG-VIG-RADIO-003 (Octobre 2022) existait déjà. v1.47.6 supprime/redirige toutes les références à l'ancienne fiche."
+      "title": "🚨 ROLLBACK URGENT — sync destructrice de v1.47.2 supprimée",
+      "detail": "Diagnostic complet sur les 7 bugs critiques remontés par Catherine GROSJEAN. CAUSE RACINE : l'architecture utilise protekscan_user_v2 (clé CHIFFRÉE AES-GCM via PIN) comme SEULE source de vérité pour appareils/contrôles. protekscan_appareils en clair n'a jamais existé. v1.47.2 lisait cette clé vide puis faisait `appareils.length = 0; arr.forEach(push)` → ÉCRASAIT la globale chargée du chiffré. v1.47.7 supprime ce code destructif."
+    },
+    {
+      "type": "feat",
+      "title": "🔄 Bouton flottant 'Recharger appareils' (bas droit)",
+      "detail": "Bouton bleu flottant permanent qui appelle loadState() pour recharger appareils + contrôles depuis le storage chiffré protekscan_user_v2. Solution immédiate pour les cas où la globale a été vidée par l'ancien bug. Renderise ensuite la vue."
+    },
+    {
+      "type": "feat",
+      "title": "⚠ Bandeau d'alerte au boot si données chiffrées mais inventaire vide",
+      "detail": "Si protekscan_user_v2 est présent mais appareils.length === 0, un bandeau rouge en haut de page : 'Données chiffrées détectées mais inventaire vide' avec bouton '🔄 Recharger maintenant'. Détection automatique du symptôme du bug."
+    },
+    {
+      "type": "feat",
+      "title": "🆘 Backup v1.47.7 avec données déchiffrées",
+      "detail": "Nouveau bouton orange dans route import_restore : '🆘 Backup COMPLET v1.47.7'. Exporte TOUTES les clés protekscan_* (dont user_v2 chiffré) + EN PLUS appareils_clair et controles_clair en clair. Permet de transférer la base sur une autre instance avec un autre PIN sans perdre les données métier."
+    },
+    {
+      "type": "feat",
+      "title": "📋 Diagnostic console détaillé au boot",
+      "detail": "À chaque démarrage, log automatique [v1.47.7] DIAGNOSTIC COMPLET : version, statut storage chiffré, _cryptoKey actif (PIN), nb appareils/contrôles en globale, présence des fonctions renderInventaire/Locaux/Planning/Zones/ExamensMensuels/Documents/openLocalModal. Permet à Catherine d'envoyer F12 → support pour diagnostic ciblé."
+    },
+    {
+      "type": "feat",
+      "title": "Restauration intelligente du backup v1.47.7 avec decrypted_data",
+      "detail": "Si le backup contient decrypted_data (appareils_clair + controles_clair), l'import les pousse DIRECTEMENT dans la globale puis appelle saveState() qui re-chiffre avec le PIN actuel. Plus de dépendance au PIN d'origine du backup."
     },
     {
       "type": "fix",
-      "title": "Bouton 📋 dans la liste Personnel/Travailleurs",
-      "detail": "Le bouton data-act='fexpo-f' qui appelait l'ancienne _genererFicheExposition est intercepté par v1.47.6 (cloneNode + replaceChild + stopImmediatePropagation) et redirige vers _genererEvaluationIndividuelle. Tooltip et aria-label mis à jour : 'Générer EIER (Évaluation individuelle exposition RI — R.4451-53)'."
+      "title": "Bugs Locaux/Planning/Examens/Documents/Services : diagnostic requis",
+      "detail": "Ces 6 bugs ne sont PAS causés par mes patches (analyse confirmée : mes setInterval ne ciblent que des sélecteurs uniques [data-gd-act='backup'], [data-act='fexpo-f']). Ils sont préexistants dans le code original. Le diagnostic console v1.47.7 permettra d'identifier précisément ce qui plante chez Catherine et de cibler les fixes en v1.47.8."
     },
     {
       "type": "fix",
-      "title": "window._genererFicheExposition redirige vers EIER",
-      "detail": "Au cas où du code legacy appellerait encore window._genererFicheExposition({...}), un wrapper transparent redirige l'appel vers window._genererEvaluationIndividuelle avec le même prefill. Plus aucun moyen de générer accidentellement l'ancienne fiche obsolète."
-    },
-    {
-      "type": "fix",
-      "title": "Patch des libellés en continu (boutons, menus, command palette)",
-      "detail": "setInterval(2s) qui scanne les éléments d'UI (boutons, items de menu, entrées de la palette Ctrl+K) et remplace les textes 'Fiche d'exposition au poste' par 'EIER (R.4451-53)' ou 'Évaluation individuelle exposition RI'. Idempotent (dataset.v1476Patched=1 évite la re-patch). Couvre les libellés rendus dynamiquement après navigation."
-    },
-    {
-      "type": "fix",
-      "title": "Diagnostic console au boot",
-      "detail": "Au démarrage : '[v1.47.6] Conformité décret 2018-437' avec confirmation que la fiche est redirigée et que EIER R.4451-53 est active. Permet de vérifier (F12) que le module est bien chargé."
-    },
-    {
-      "type": "fix",
-      "title": "Références réglementaires préservées",
-      "detail": "Les paragraphes explicatifs et legal mentionnant R.4451-82 (ancienne fiche) sont conservés à des fins historiques/pédagogiques dans le tutoriel, MAIS aucun bouton ni génération de document ne produit plus l'ancienne fiche. Tout document généré utilise EIER R.4451-53."
+      "title": "Conservation des autres fixes v1.47.X",
+      "detail": "v1.47.3 capture phase listener (import OK), v1.47.4 nouvelle route import_restore, v1.47.5 dump dynamique export complet, v1.47.6 EIER conformité décret 2018-437. Tous toujours actifs et fonctionnels."
     }
   ]
 }
