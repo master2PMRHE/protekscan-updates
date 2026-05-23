@@ -1,56 +1,41 @@
 {
-  "version": "1.45.0",
-  "releaseDate": "2026-05-21",
-  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.45.0.html",
-  "size": 3257515,
-  "sha256": "f25bec9e41b40c7a41eeee56eefadbd2a919722b0b08ddcf7cabeab027d955f7",
+  "version": "1.47.6",
+  "releaseDate": "2026-05-23",
+  "downloadUrl": "https://master2pmrhe.github.io/protekscan-updates/protekscan_USER_v1.47.6.html",
+  "size": 3415019,
+  "sha256": "469ad52957ed934fede5289bf295a907acd9f91c5e61c1b3be6b080e40ac44ec",
   "minVersion": "1.14.0",
   "mandatory": true,
   "changelog": [
     {
-      "type": "feat",
-      "title": "Vue détail Session de formation avec gestion participants",
-      "detail": "navigate('session_detail|<sessionId>'). Bouton 👥 ajouté dans la liste des sessions ouvre la vue détail. KPIs participants (inscrits/présents/validés/absents) en haut. Tableau complet des participants avec nom, matricule, service, statut colorisé. Boutons rapides pour changer le statut (📝 Inscrit / ✓ Présent / ✗ Absent / ⊘ Excusé / 🏅 Validé)."
+      "type": "fix",
+      "title": "🏛 CONFORMITÉ — Fiche d'exposition remplacée par EIER (décret 2018-437)",
+      "detail": "La fiche d'exposition au poste de travail (ancienne R.4451-58) a été ABROGÉE par le décret n°2018-437 du 4 juin 2018 et remplacée par l'EIER (Évaluation Individuelle de l'Exposition aux RI), formalisée par les articles R.4451-52 (obligation préalable) et R.4451-53 (formalisme). La fonction _genererEvaluationIndividuelle conforme au document type ENG-VIG-RADIO-003 (Octobre 2022) existait déjà. v1.47.6 supprime/redirige toutes les références à l'ancienne fiche."
     },
     {
-      "type": "feat",
-      "title": "Ajout multi-participants depuis le registre avec recherche",
-      "detail": "Modal '+ Ajouter depuis registre' qui liste tous les travailleurs non encore inscrits. Recherche en temps réel (nom/matricule/service). Sélection multiple avec checkbox + 'Tout sélectionner'. Compteur de sélection en direct. Ajout en lot d'un coup."
+      "type": "fix",
+      "title": "Bouton 📋 dans la liste Personnel/Travailleurs",
+      "detail": "Le bouton data-act='fexpo-f' qui appelait l'ancienne _genererFicheExposition est intercepté par v1.47.6 (cloneNode + replaceChild + stopImmediatePropagation) et redirige vers _genererEvaluationIndividuelle. Tooltip et aria-label mis à jour : 'Générer EIER (Évaluation individuelle exposition RI — R.4451-53)'."
     },
     {
-      "type": "feat",
-      "title": "Feuille de présence A4 imprimable",
-      "detail": "Bouton 📄 'Feuille de présence' génère un document A4 prêt à imprimer/signer. En-tête avec toutes les infos session (intitulé/code/type/lieu/date/formateur/organisme/durée), tableau participants pré-rempli (nom/prénom/matricule/service/statut) avec colonne signature physique. 25 lignes max + lignes vierges pour ajouts manuels. Blocs signature formateur + PCR en bas. Référence art. R.4451-58 CT."
+      "type": "fix",
+      "title": "window._genererFicheExposition redirige vers EIER",
+      "detail": "Au cas où du code legacy appellerait encore window._genererFicheExposition({...}), un wrapper transparent redirige l'appel vers window._genererEvaluationIndividuelle avec le même prefill. Plus aucun moyen de générer accidentellement l'ancienne fiche obsolète."
     },
     {
-      "type": "feat",
-      "title": "Génération attestations en lot",
-      "detail": "Bouton 🏅 'Attestations (N)' génère un document multi-pages avec une attestation par participant validé. Format A4 paysage avec en-tête établissement, nom du participant en grand encadré, détails formation (date/durée/formateur/organisme), date d'expiration calculée automatiquement (3 ans par défaut selon modèle), signatures. Le compteur (N) montre combien de validés."
+      "type": "fix",
+      "title": "Patch des libellés en continu (boutons, menus, command palette)",
+      "detail": "setInterval(2s) qui scanne les éléments d'UI (boutons, items de menu, entrées de la palette Ctrl+K) et remplace les textes 'Fiche d'exposition au poste' par 'EIER (R.4451-53)' ou 'Évaluation individuelle exposition RI'. Idempotent (dataset.v1476Patched=1 évite la re-patch). Couvre les libellés rendus dynamiquement après navigation."
     },
     {
-      "type": "feat",
-      "title": "MAJ automatique de l'historique formation du travailleur",
-      "detail": "Quand un participant est marqué 'Validé', l'historique formation du travailleur est automatiquement mis à jour : entrée ajoutée dans t.formations[] avec sessionId, intitulé, type, date réalisation/validation, formateur, organisme. Évite la double saisie et garantit la cohérence registre ↔ sessions."
+      "type": "fix",
+      "title": "Diagnostic console au boot",
+      "detail": "Au démarrage : '[v1.47.6] Conformité décret 2018-437' avec confirmation que la fiche est redirigée et que EIER R.4451-53 est active. Permet de vérifier (F12) que le module est bien chargé."
     },
     {
-      "type": "feat",
-      "title": "4 Templates POPM spécialisés par modalité",
-      "detail": "Modal de sélection avant génération POPM avec 5 options : POPM générique (v1.43) + 4 spécialisés. Scanner 🩻 : NRD, optimisation dose patient, CTDIvol/DLP, CQ scanner annuel. IRM 🧲 : risques champ magnétique B0, sécurité ferromagnétique, suivi SAR. Médecine nucléaire ☢ : gestion radiopharmaceutiques, décroissance/effluents, salle d'injection, protection aidants. Radiothérapie 🎯 : dosimétrie clinique RCMI/IGRT/SBRT, PAQ, double calcul dose, gestion DEPI."
-    },
-    {
-      "type": "feat",
-      "title": "Chaque template POPM contient ses sections obligatoires distinctes",
-      "detail": "Le template scanner mentionne R.1333-58 CSP + arrêté 8 février 2019 radiologie interventionnelle. IRM : décret 2016-1074 CEM. Médecine nucléaire : R.1333 + INB. Radiothérapie : R.1333 + critères INCa/ASN. Sections spécifiques pré-formatées avec zones de saisie à compléter par la PCR/physicien médical."
-    },
-    {
-      "type": "feat",
-      "title": "Vue détail E-learning + suivi progression par participant",
-      "detail": "navigate('elearning_detail|<id>'). Bouton 👥 dans la liste e-learning. 4 statuts par participant : 📝 À faire / ⏳ En cours / ✓ Terminé / 🏅 Validé (score ≥80%). Le passage à 'Validé' demande le score (%) en input et déclenche la MAJ historique formation. Bouton 🎓 'Lancer le quiz' qui ouvre le quiz métier 25 QCM existant."
-    },
-    {
-      "type": "feat",
-      "title": "Réutilisation intelligente : pas de doublon vs modules existants",
-      "detail": "Avant ce module, vérification que les calculatrices RP (renderCalculateurs route 'calculateurs'), le zonage automatique (renderZones route 'zones'), l'export SISERI complet (CSV par année/mois), le quiz e-learning standalone (25 QCM avec score), l'attestation PCR/formation, et le manifest PWA existaient déjà → non recodés. Seules les 3 lacunes confirmées comblées."
+      "type": "fix",
+      "title": "Références réglementaires préservées",
+      "detail": "Les paragraphes explicatifs et legal mentionnant R.4451-82 (ancienne fiche) sont conservés à des fins historiques/pédagogiques dans le tutoriel, MAIS aucun bouton ni génération de document ne produit plus l'ancienne fiche. Tout document généré utilise EIER R.4451-53."
     }
   ]
 }
